@@ -16,15 +16,25 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Purpose  
 
-The purpose of your analysis.  
+The overall theme of this exercise is determining the popularity of online news. The goal is to create models for predicting the number of times a news article from *mashable.com* will be shared in social networks. Two models will be created: a linear regression model and a non-linear model. The parameter functionality of markdown will be used to automatically generate an analysis report for each day of the week that an article might be published.  
 
 ## Data Description  
 
-You should have an introduction section that describes the data.  
+The data comes from the *UC Irvine Machine Learning Repository* and can be found in its original form at this [link](https://archive.ics.uci.edu/ml/datasets/Online+News+Popularity#).  
+
+This data set covers a two year period, listing all published articles from Mashable and several variables of associated characteristics, such as:  
+
+*  Published Day of Week
+*  Channel, or Genre (Lifestyle, Business, World, Entertainment, etc.)
+*  Word Count
+*  Number of Images
+*  *...and several others...*
+
+In total there are **58 possible predictive attributes** with the goal of predicting the **response variable of number of shares** in social networks. The provided link above goes into more detail for all variables and their representation.  
 
 ## Methods  
 
-The methods you’ll use (roughly - more detail can be given later in the document).  
+**To be filled in later** >> The methods you’ll use (roughly - more detail can be given later in the document).  
 
 # *************************Data  
 
