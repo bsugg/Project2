@@ -6,13 +6,24 @@ output:
   rmarkdown::github_document:
     toc: true
     toc_depth: 3
+params:
+  day: "Monday"
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(Lahman)
+library(formatR)
+library(dplyr)
+library(class)
+library(caret)
+library(e1071)
+library(randomForest)
+library(gbm)
+knitr::opts_chunk$set(echo=TRUE,tidy.opts=list(width.cutoff=70),tidy=TRUE)
 ```
 
-# *************************Introduction  
+# Introduction  
 
 ## Purpose  
 
@@ -32,7 +43,7 @@ This data set covers a two year period, listing all published articles from Mash
 
 In total there are **58 possible predictive attributes** with the goal of predicting the **response variable of number of shares** in social networks. The provided link above goes into more detail for all variables and their representation.  
 
-## Methods  
+## *****Methods  
 
 **To be filled in later** >> The methods you’ll use (roughly - more detail can be given later in the document).  
 
@@ -46,9 +57,36 @@ You should briefly describe the data and the variables you have to work with (no
 
 Read in csv file.  
 
+```{r createDataSet}
+# Read in the data
+news <- read_csv("data/OnlineNewsPopularity.csv")
+# Filter data set on day of week using markdown parameter
+filterDay <- paste0("weekday_is_",tolower(params$day))
+news <- filter(news,eval(as.symbol(filterDay))==1)
+# Create a binary variable for shares
+news$sharesBi <- factor(ifelse(news$shares<1400,0,1))
+```
+
+Preview of the `news` set:  
+
+```{r dataPreview}
+head(news)
+```
+
+
 ## Slicing  
 
 You should randomly sample from (say using sample()) the (Monday) data in order to form a training (70% of the data) and test set (30% of the data). You should set the seed to make your work reproducible.  
+
+```{r dataSlicing}
+# Set seed for reproducible results
+set.seed(1)
+# Create the train and test sets
+train <- sample(1:nrow(news), size = nrow(news)*0.7)
+test <- dplyr::setdiff(1:nrow(news), train)
+newsTrain <- news[train, ]
+newsTest <- news[test, ]
+```
 
 # *************************Summarizations  
 
@@ -108,6 +146,8 @@ Include metrics for accuracy and misclassification rate.
 # *************************Automation  
 
 Once you’ve completed the above for Monday, adapt the code so that you can use a parameter in your build process that will cycle through the weekday_is_* variables.  
+
+The analysis for [Monday is available here](MondayAnalysis.md)
 
 # *************************Conclusion
 
