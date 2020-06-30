@@ -7,7 +7,7 @@ Brian Sugg
       - [Purpose](#purpose)
       - [Data Description](#data-description)
       - [\*\*\*\*\*Methods](#methods)
-  - [\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*Data](#data)
+  - [Data](#data)
       - [Metadata](#metadata)
       - [Import](#import)
       - [Slicing](#slicing)
@@ -65,16 +65,47 @@ variables and their representation.
 **To be filled in later** \>\> The methods you’ll use (roughly - more
 detail can be given later in the document).
 
-# \*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*Data
+# Data
 
 ## Metadata
 
-You should briefly describe the data and the variables you have to work
-with (no need to discuss all of them just the ones you want to use).
+As mentioned previously, the original data set contains 58 possible
+predictor variables and 1 response variable. We will add 1 additional
+response variable for “Popularity” during the import process below in
+case this is something we wish to also predict. *Popularity* will be
+defined as any article that is shared at least 1,400 times.
+
+The provided predictor variables have a wide range of characteristics
+they represent. A listing of some of the primary variables this analysis
+will focus on, including the thought process behind their selection:
+
+  - `n_tokens_title` - number of words in the title
+      - Are short titles more catchy to the reader?  
+  - `n_tokens_content` - number of words in the article
+      - Is a shorter article more likely to be quickly digested and
+        shared vs longer articles that require more time?  
+  - `num_imgs` - number of images in the article
+      - Are more images more visually appealing, generating shares from
+        people wanting to share the images within?  
+  - `num_videos` - number of videos in the article
+      - Videos can provide article content more easily, but also
+        requires the attention of the viewer. Could this influence
+        sharing?  
+  - `data_channel_is_*` - 6 binary variables that indicate if an article
+    falls under the genre *Lifestyle*, *Entertainment*, *Business*,
+    *Social Media*, *Tech*, or *World*
+      - Does the channel/genre influence sharing?
+
+Many other variables are present, especially in determining the
+positive/negative association of words within the article and the title,
+which will be discussed further if they become prevalent in our
+analysis.
 
 ## Import
 
 Read in csv file.
+
+0 = Unpopular 1 = Popular
 
 ``` r
 # Read in the data
@@ -94,7 +125,17 @@ news <- read_csv("data/OnlineNewsPopularity.csv")
 filterDay <- paste0("weekday_is_", tolower(params$day))
 news <- filter(news, eval(as.symbol(filterDay)) == 1)
 # Create a binary variable for shares
-news$sharesBi <- factor(ifelse(news$shares < 1400, 0, 1))
+news$sharesPopular <- factor(ifelse(news$shares < 1400, 0, 1))
+# Create variable for channel using the 6 individual channel variables,
+# labeling all others as 'Other'
+news$channel <- factor(ifelse(news$data_channel_is_lifestyle == 1, "Lifestyle", 
+    ifelse(news$data_channel_is_entertainment == 1, "Entertainment", ifelse(news$data_channel_is_bus == 
+        1, "Business", ifelse(news$data_channel_is_socmed == 1, "Social Media", 
+        ifelse(news$data_channel_is_tech == 1, "Tech", ifelse(news$data_channel_is_world == 
+            1, "World", "Other")))))))
+# Remove 2 non-predictive variables as noted in linked documentation
+# from UCI
+news <- news %>% select(-url, -timedelta)
 ```
 
 Preview of the `news` set:
@@ -103,24 +144,23 @@ Preview of the `news` set:
 head(news)
 ```
 
-    ## # A tibble: 6 x 62
-    ##   url   timedelta n_tokens_title n_tokens_content n_unique_tokens
-    ##   <chr>     <dbl>          <dbl>            <dbl>           <dbl>
-    ## 1 http~       731             12              219           0.664
-    ## 2 http~       731              9              255           0.605
-    ## 3 http~       731              9              211           0.575
-    ## 4 http~       731              9              531           0.504
-    ## 5 http~       731             13             1072           0.416
-    ## 6 http~       731             10              370           0.560
-    ## # ... with 57 more variables: n_non_stop_words <dbl>,
-    ## #   n_non_stop_unique_tokens <dbl>, num_hrefs <dbl>, num_self_hrefs <dbl>,
-    ## #   num_imgs <dbl>, num_videos <dbl>, average_token_length <dbl>,
-    ## #   num_keywords <dbl>, data_channel_is_lifestyle <dbl>,
-    ## #   data_channel_is_entertainment <dbl>, data_channel_is_bus <dbl>,
-    ## #   data_channel_is_socmed <dbl>, data_channel_is_tech <dbl>,
-    ## #   data_channel_is_world <dbl>, kw_min_min <dbl>, kw_max_min <dbl>,
-    ## #   kw_avg_min <dbl>, kw_min_max <dbl>, kw_max_max <dbl>, kw_avg_max <dbl>,
-    ## #   kw_min_avg <dbl>, kw_max_avg <dbl>, kw_avg_avg <dbl>,
+    ## # A tibble: 6 x 61
+    ##   n_tokens_title n_tokens_content n_unique_tokens n_non_stop_words
+    ##            <dbl>            <dbl>           <dbl>            <dbl>
+    ## 1             12              219           0.664             1.00
+    ## 2              9              255           0.605             1.00
+    ## 3              9              211           0.575             1.00
+    ## 4              9              531           0.504             1.00
+    ## 5             13             1072           0.416             1.00
+    ## 6             10              370           0.560             1.00
+    ## # ... with 57 more variables: n_non_stop_unique_tokens <dbl>, num_hrefs <dbl>,
+    ## #   num_self_hrefs <dbl>, num_imgs <dbl>, num_videos <dbl>,
+    ## #   average_token_length <dbl>, num_keywords <dbl>,
+    ## #   data_channel_is_lifestyle <dbl>, data_channel_is_entertainment <dbl>,
+    ## #   data_channel_is_bus <dbl>, data_channel_is_socmed <dbl>,
+    ## #   data_channel_is_tech <dbl>, data_channel_is_world <dbl>, kw_min_min <dbl>,
+    ## #   kw_max_min <dbl>, kw_avg_min <dbl>, kw_min_max <dbl>, kw_max_max <dbl>,
+    ## #   kw_avg_max <dbl>, kw_min_avg <dbl>, kw_max_avg <dbl>, kw_avg_avg <dbl>,
     ## #   self_reference_min_shares <dbl>, self_reference_max_shares <dbl>,
     ## #   self_reference_avg_sharess <dbl>, weekday_is_monday <dbl>,
     ## #   weekday_is_tuesday <dbl>, weekday_is_wednesday <dbl>,
@@ -135,7 +175,7 @@ head(news)
     ## #   min_negative_polarity <dbl>, max_negative_polarity <dbl>,
     ## #   title_subjectivity <dbl>, title_sentiment_polarity <dbl>,
     ## #   abs_title_subjectivity <dbl>, abs_title_sentiment_polarity <dbl>,
-    ## #   shares <dbl>, sharesBi <fct>
+    ## #   shares <dbl>, sharesPopular <fct>, channel <fct>
 
 ## Slicing
 
@@ -163,6 +203,35 @@ the **training** data you are working with.
 Numeric summaries, with contingecy tables for categorical variables.
 
 ## Visuals
+
+``` r
+# Filter out a few outliers to help in scatter plot
+newsTrain <- filter(newsTrain, n_tokens_content < 1500)
+newsTrain <- filter(newsTrain, n_tokens_content > 0)
+newsTrain <- filter(newsTrain, shares < 20000)
+
+plot(newsTrain$n_tokens_title, newsTrain$shares)
+```
+
+![](README_files/figure-gfm/scatterPlot-1.png)<!-- -->
+
+``` r
+plot(newsTrain$n_tokens_content, newsTrain$shares)
+```
+
+![](README_files/figure-gfm/scatterPlot-2.png)<!-- -->
+
+``` r
+plot(newsTrain$num_imgs, newsTrain$shares)
+```
+
+![](README_files/figure-gfm/scatterPlot-3.png)<!-- -->
+
+``` r
+plot(newsTrain$num_videos, newsTrain$shares)
+```
+
+![](README_files/figure-gfm/scatterPlot-4.png)<!-- -->
 
 A few plots help illustrate the above numeric summaries, and offer
 additional views.
