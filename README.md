@@ -452,8 +452,23 @@ Summary of Article Characteristics
 
 ## Visuals
 
+A basic histogram is first explored for number of shares in the
+`newsTrain` data set, which is typically skewed right.
+
 ``` r
-# Boxplot 1 creation by position
+# Histogram creation
+histShares <- ggplot(data = newsTrain, aes(x = shares))
+histShares + geom_histogram(bins = 30) + labs(x = "Number of Shares", y = "Article Count", 
+    title = "Histogram of Shares")
+```
+
+![](README_files/figure-gfm/histogram-1.png)<!-- -->
+
+The number of shares can be better visualized in a boxplot by `channel`,
+showcasing the summary stats for each.
+
+``` r
+# Boxplot creation by position
 boxChannel <- ggplot(data = newsTrain)
 boxChannel + geom_jitter(aes(x = channel, y = shares, color = channel)) + 
     geom_boxplot(aes(x = channel, y = shares)) + labs(x = "Article Channel", 
@@ -464,6 +479,16 @@ boxChannel + geom_jitter(aes(x = channel, y = shares, color = channel)) +
 ![](README_files/figure-gfm/boxPlot-1.png)<!-- -->
 
 ``` r
+# 100% Stack bar chart on popularity
+stackBar <- ggplot(data = newsTrain, aes(x = n_tokens_title))
+stackBar + geom_bar(aes(fill = sharesPopular), position = "fill") + labs(x = "Title Word Count", 
+    y = "Popularity %", title = "Popularity (0=NotPopular,1=Popular) vs Title Word Count") + 
+    scale_fill_discrete(name = "Popular Article")
+```
+
+![](README_files/figure-gfm/bar100-1.png)<!-- -->
+
+``` r
 # Filter out a few outliers to help in scatter plot
 newsTrain <- filter(newsTrain, n_tokens_content < 1500)
 newsTrain <- filter(newsTrain, n_tokens_content > 0)
@@ -472,25 +497,25 @@ newsTrain <- filter(newsTrain, shares < 25000)
 plot(newsTrain$n_tokens_title, newsTrain$shares)
 ```
 
-![](README_files/figure-gfm/scatterPlot-1.png)<!-- -->
+![](README_files/figure-gfm/scatter-1.png)<!-- -->
 
 ``` r
 plot(newsTrain$n_tokens_content, newsTrain$shares)
 ```
 
-![](README_files/figure-gfm/scatterPlot-2.png)<!-- -->
+![](README_files/figure-gfm/scatter-2.png)<!-- -->
 
 ``` r
 plot(newsTrain$num_imgs, newsTrain$shares)
 ```
 
-![](README_files/figure-gfm/scatterPlot-3.png)<!-- -->
+![](README_files/figure-gfm/scatter-3.png)<!-- -->
 
 ``` r
 plot(newsTrain$num_videos, newsTrain$shares)
 ```
 
-![](README_files/figure-gfm/scatterPlot-4.png)<!-- -->
+![](README_files/figure-gfm/scatter-4.png)<!-- -->
 
 A few plots help illustrate the above numeric summaries, and offer
 additional views.

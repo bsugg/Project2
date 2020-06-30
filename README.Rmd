@@ -134,17 +134,37 @@ Numeric summaries of different article stats help reveal a few observations from
 knitr::kable(cbind("Title Word Count"=round(summary(newsTrain$n_tokens_title),1),"Article Word Count"=round(summary(newsTrain$n_tokens_content),1),"Number of Images"=round(summary(newsTrain$num_imgs),1),"Number of Videos"=round(summary(newsTrain$num_videos),1)),caption=paste("Summary of Article Characteristics"))
 ```
 
-
 ## Visuals  
 
+A basic histogram is first explored for number of shares in the `newsTrain` data set, which is typically skewed right.  
+
+```{r histogram}
+# Histogram creation
+histShares <- ggplot(data=newsTrain,aes(x=shares))
+histShares + geom_histogram(bins=30) + labs(x="Number of Shares",y="Article Count",title="Histogram of Shares")
+```
+
+The number of shares can be better visualized in a boxplot by `channel`, showcasing the summary stats for each.  
+
 ```{r boxPlot}
-# Boxplot 1 creation by position
+# Boxplot creation by position
 boxChannel <- ggplot(data=newsTrain)
 boxChannel + geom_jitter(aes(x=channel,y=shares,color=channel)) + geom_boxplot(aes(x=channel,y=shares)) + labs(x="Article Channel",y="Shares on Social Networks",title="Boxplot for Number of Shares per Article Channel") + theme(legend.position = "none")
 ```
 
+```{r scatterPlots}
 
-```{r scatterPlot}
+```
+
+```{r bar100}
+# 100% Stack bar chart on popularity
+stackBar <- ggplot(data=newsTrain,aes(x=n_tokens_title))
+stackBar + geom_bar(aes(fill=sharesPopular),position="fill") + labs(x="Title Word Count",y="Popularity %",title="Popularity (0=NotPopular,1=Popular) vs Title Word Count") + scale_fill_discrete(name="Popular Article")
+```
+
+
+
+```{r scatter}
 # Filter out a few outliers to help in scatter plot
 newsTrain <- filter(newsTrain,n_tokens_content<1500)
 newsTrain <- filter(newsTrain,n_tokens_content>0)
