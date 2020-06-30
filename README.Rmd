@@ -70,10 +70,9 @@ Many other variables are present, especially in determining the positive/negativ
 
 ## Import  
 
-Read in csv file.  
+The raw data set from UCI is provided and read in as a `.csv` file, creating the `news` data set. The parameter functionality of markdown is then incorporated from the YAML header, initially using the parameter value `day` to filter the `news` data set on a certain day of week for analysis.  
 
-0 = Unpopular
-1 = Popular
+Additional modifications are made, including the creation of a binary `popularity` variable as mentioned earlier, defining popularity as any article shared more than 1,400 times. To help visualize the amount of articles per `channel`, this variable is created as well using the `data_channel_is*` variables. Finally, any non-predictive variables are removed to create a `newsSlice` data set that will be sliced into train and test sets later on.  
 
 ```{r createDataSet}
 # Read in the data
@@ -81,18 +80,18 @@ news <- read_csv("data/OnlineNewsPopularity.csv")
 # Filter data set on day of week using markdown parameter
 filterDay <- paste0("weekday_is_",tolower(params$day))
 news <- filter(news,eval(as.symbol(filterDay))==1)
-# Create a binary variable for shares
+# Create a binary variable for popularity
 news$sharesPopular <- factor(ifelse(news$shares<1400,0,1))
-# Create variable for channel using the 6 individual channel variables, labeling all others as "Other"
+# Create variable for channel using the 6 individual channel variables if present
 news$channel <- factor(ifelse(news$data_channel_is_lifestyle==1,"Lifestyle",ifelse(news$data_channel_is_entertainment==1,"Entertainment",ifelse(news$data_channel_is_bus==1,"Business",ifelse(news$data_channel_is_socmed==1,"Social Media",ifelse(news$data_channel_is_tech==1,"Tech",ifelse(news$data_channel_is_world==1,"World","Other")))))))
 # Remove 2 non-predictive variables as noted in linked documentation from UCI
-news <- news %>% select(-url,-timedelta)
+newsSlice <- news %>% select(-url,-timedelta)
 ```
 
-Preview of the `news` set:  
+For verification, a preview of the `newsSlice` set is generated prior to slicing:  
 
 ```{r dataPreview}
-head(news)
+head(newsSlice)
 ```
 
 
@@ -104,10 +103,10 @@ You should randomly sample from (say using sample()) the (Monday) data in order 
 # Set seed for reproducible results
 set.seed(1)
 # Create the train and test sets
-train <- sample(1:nrow(news), size = nrow(news)*0.7)
-test <- dplyr::setdiff(1:nrow(news), train)
-newsTrain <- news[train, ]
-newsTest <- news[test, ]
+train <- sample(1:nrow(newsSlice), size = nrow(newsSlice)*0.7)
+test <- dplyr::setdiff(1:nrow(newsSlice), train)
+newsTrain <- newsSlice[train, ]
+newsTest <- newsSlice[test, ]
 ```
 
 # *************************Summarizations  
