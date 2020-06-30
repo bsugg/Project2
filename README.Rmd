@@ -41,7 +41,7 @@ This data set covers a two year period, listing all published articles from Mash
 *  Number of Images
 *  *...and several others...*
 
-In total there are **58 possible predictive attributes** with the goal of predicting the **response variable of number of shares** in social networks. The provided link above goes into more detail for all variables and their representation.  
+In total there are **58 possible predictive attributes** with the goal of predicting the **response variable of number of shares in social networks**. The provided link above goes into more detail for all variables and their representation.  
 
 ## *****Methods  
 
@@ -70,13 +70,14 @@ Many other variables are present, especially in determining the positive/negativ
 
 ## Import  
 
-The raw data set from UCI is provided and read in as a `.csv` file, creating the `news` data set. The parameter functionality of markdown is then incorporated from the YAML header, initially using the parameter value `day` to filter the `news` data set on a certain day of week for analysis.  
+The raw data set from UCI is provided and read in as a `.csv` file, creating the `news` data set. Extreme values for `shares` > 25,000 are filtered out (578 removed out of 39,644 records). The parameter functionality of markdown is then incorporated from the YAML header, initially using the parameter value `day` to filter the `news` data set on a certain day of week for analysis.  
 
 Additional modifications are made, including the creation of a binary `popularity` variable as mentioned earlier, defining popularity as any article shared more than 1,400 times. To help visualize the amount of articles per `channel`, this variable is created as well using the `data_channel_is*` variables. Finally, any non-predictive variables are removed to create a `newsSlice` data set that will be sliced into train and test sets later on.  
 
 ```{r createDataSet}
-# Read in the data
+# Read in the data, filter out extreme values
 news <- read_csv("data/OnlineNewsPopularity.csv")
+news <- news %>% filter(shares<25000)
 # Filter data set on day of week using markdown parameter
 filterDay <- paste0("weekday_is_",tolower(params$day))
 news <- filter(news,eval(as.symbol(filterDay))==1)
@@ -116,19 +117,38 @@ For the analysis of articles published on **`r params$day`** there are a total o
 
 # Summarizations  
 
-You should produce some basic (but meaningful) summary statistics about the **training** data you are working with.  
+Some basic summary statistics and visualizations of the `newsTrain` training data are provided in the below sections, using variables discussed previously.  
 
 ## Numeric Summaries  
 
-Numeric summaries, with contingecy tables for categorical variables.  
+A contingecy table is provided for the categorical variable `channel` to compare against article popularity, where a popular article is defined as having at least 1,400 shares.  
+
+```{r contingencyTables}
+# Contingency tables of frequency
+knitr::kable(table(newsTrain$channel,newsTrain$sharesPopular),format="html",caption="Frequency of Article Channel by Sharing Popularity (0=NotPopular,1=Popular)")
+```
+
+Numeric summaries of different article stats help reveal a few observations from the training data set regarding the length of article titles, the length of articles, the number of images within an article, and the number of videos within an article. The correlation between these variables and the response variable `shares` will be explored further with visuals in the following section.  
+
+```{r summaryStats}
+knitr::kable(cbind("Title Word Count"=round(summary(newsTrain$n_tokens_title),1),"Article Word Count"=round(summary(newsTrain$n_tokens_content),1),"Number of Images"=round(summary(newsTrain$num_imgs),1),"Number of Videos"=round(summary(newsTrain$num_videos),1)),caption=paste("Summary of Article Characteristics"))
+```
+
 
 ## Visuals  
+
+```{r boxPlot}
+# Boxplot 1 creation by position
+boxChannel <- ggplot(data=newsTrain)
+boxChannel + geom_jitter(aes(x=channel,y=shares,color=channel)) + geom_boxplot(aes(x=channel,y=shares)) + labs(x="Article Channel",y="Shares on Social Networks",title="Boxplot for Number of Shares per Article Channel") + theme(legend.position = "none")
+```
+
 
 ```{r scatterPlot}
 # Filter out a few outliers to help in scatter plot
 newsTrain <- filter(newsTrain,n_tokens_content<1500)
 newsTrain <- filter(newsTrain,n_tokens_content>0)
-newsTrain <- filter(newsTrain,shares<20000)
+newsTrain <- filter(newsTrain,shares<25000)
 
 plot(newsTrain$n_tokens_title,newsTrain$shares)
 

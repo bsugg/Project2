@@ -56,8 +56,8 @@ as:
   - *…and several others…*
 
 In total there are **58 possible predictive attributes** with the goal
-of predicting the **response variable of number of shares** in social
-networks. The provided link above goes into more detail for all
+of predicting the **response variable of number of shares in social
+networks**. The provided link above goes into more detail for all
 variables and their representation.
 
 ## \*\*\*\*\*Methods
@@ -104,10 +104,11 @@ analysis.
 ## Import
 
 The raw data set from UCI is provided and read in as a `.csv` file,
-creating the `news` data set. The parameter functionality of markdown is
-then incorporated from the YAML header, initially using the parameter
-value `day` to filter the `news` data set on a certain day of week for
-analysis.
+creating the `news` data set. Extreme values for `shares` \> 25,000 are
+filtered out (578 removed out of 39,644 records). The parameter
+functionality of markdown is then incorporated from the YAML header,
+initially using the parameter value `day` to filter the `news` data set
+on a certain day of week for analysis.
 
 Additional modifications are made, including the creation of a binary
 `popularity` variable as mentioned earlier, defining popularity as any
@@ -118,7 +119,7 @@ removed to create a `newsSlice` data set that will be sliced into train
 and test sets later on.
 
 ``` r
-# Read in the data
+# Read in the data, filter out extreme values
 news <- read_csv("data/OnlineNewsPopularity.csv")
 ```
 
@@ -131,6 +132,7 @@ news <- read_csv("data/OnlineNewsPopularity.csv")
     ## See spec(...) for full column specifications.
 
 ``` r
+news <- news %>% filter(shares < 25000)
 # Filter data set on day of week using markdown parameter
 filterDay <- paste0("weekday_is_", tolower(params$day))
 news <- filter(news, eval(as.symbol(filterDay)) == 1)
@@ -158,12 +160,12 @@ head(newsSlice)
     ## # A tibble: 6 x 61
     ##   n_tokens_title n_tokens_content n_unique_tokens n_non_stop_words
     ##            <dbl>            <dbl>           <dbl>            <dbl>
-    ## 1             12              219           0.664             1.00
-    ## 2              9              255           0.605             1.00
-    ## 3              9              211           0.575             1.00
-    ## 4              9              531           0.504             1.00
-    ## 5             13             1072           0.416             1.00
-    ## 6             10              370           0.560             1.00
+    ## 1             12              149           0.728             1.00
+    ## 2             11              605           0.477             1.00
+    ## 3             11              589           0.525             1.00
+    ## 4             12              221           0.660             1.00
+    ## 5             12              552           0.525             1.00
+    ## 6             12              141           0.777             1.00
     ## # ... with 57 more variables: n_non_stop_unique_tokens <dbl>, num_hrefs <dbl>,
     ## #   num_self_hrefs <dbl>, num_imgs <dbl>, num_videos <dbl>,
     ## #   average_token_length <dbl>, num_keywords <dbl>,
@@ -207,27 +209,265 @@ newsTest <- newsSlice[test, ]
 ```
 
 For the analysis of articles published on **Monday** there are a total
-of 6,661 records sliced as:
+of 6,547 records sliced as:
 
-  - 4,662 records used in the `newsTrain` data set (69.99%)  
-  - 1,999 records used in the `newsTest` data set (30.01%)
+  - 4,582 records used in the `newsTrain` data set (69.99%)  
+  - 1,965 records used in the `newsTest` data set (30.01%)
 
 # Summarizations
 
-You should produce some basic (but meaningful) summary statistics about
-the **training** data you are working with.
+Some basic summary statistics and visualizations of the `newsTrain`
+training data are provided in the below sections, using variables
+discussed previously.
 
 ## Numeric Summaries
 
-Numeric summaries, with contingecy tables for categorical variables.
+A contingecy table is provided for the categorical variable `channel` to
+compare against article popularity, where a popular article is defined
+as having at least 1,400 shares.
+
+``` r
+# Contingency tables of frequency
+knitr::kable(table(newsTrain$channel, newsTrain$sharesPopular), format = "html", 
+    caption = "Frequency of Article Channel by Sharing Popularity (0=NotPopular,1=Popular)")
+```
+
+<table>
+
+<caption>
+
+Frequency of Article Channel by Sharing Popularity
+(0=NotPopular,1=Popular)
+
+</caption>
+
+<thead>
+
+<tr>
+
+<th style="text-align:left;">
+
+</th>
+
+<th style="text-align:right;">
+
+0
+
+</th>
+
+<th style="text-align:right;">
+
+1
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:left;">
+
+Business
+
+</td>
+
+<td style="text-align:right;">
+
+401
+
+</td>
+
+<td style="text-align:right;">
+
+418
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Entertainment
+
+</td>
+
+<td style="text-align:right;">
+
+577
+
+</td>
+
+<td style="text-align:right;">
+
+333
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Lifestyle
+
+</td>
+
+<td style="text-align:right;">
+
+93
+
+</td>
+
+<td style="text-align:right;">
+
+130
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Other
+
+</td>
+
+<td style="text-align:right;">
+
+227
+
+</td>
+
+<td style="text-align:right;">
+
+366
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Social Media
+
+</td>
+
+<td style="text-align:right;">
+
+64
+
+</td>
+
+<td style="text-align:right;">
+
+173
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+Tech
+
+</td>
+
+<td style="text-align:right;">
+
+333
+
+</td>
+
+<td style="text-align:right;">
+
+505
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+World
+
+</td>
+
+<td style="text-align:right;">
+
+601
+
+</td>
+
+<td style="text-align:right;">
+
+361
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+Numeric summaries of different article stats help reveal a few
+observations from the training data set regarding the length of article
+titles, the length of articles, the number of images within an article,
+and the number of videos within an article. The correlation between
+these variables and the response variable `shares` will be explored
+further with visuals in the following section.
+
+``` r
+knitr::kable(cbind(`Title Word Count` = round(summary(newsTrain$n_tokens_title), 
+    1), `Article Word Count` = round(summary(newsTrain$n_tokens_content), 
+    1), `Number of Images` = round(summary(newsTrain$num_imgs), 1), `Number of Videos` = round(summary(newsTrain$num_videos), 
+    1)), caption = paste("Summary of Article Characteristics"))
+```
+
+|         | Title Word Count | Article Word Count | Number of Images | Number of Videos |
+| ------- | ---------------: | -----------------: | ---------------: | ---------------: |
+| Min.    |              2.0 |                0.0 |              0.0 |              0.0 |
+| 1st Qu. |              9.0 |              252.0 |              1.0 |              0.0 |
+| Median  |             10.0 |              403.5 |              1.0 |              0.0 |
+| Mean    |             10.4 |              548.0 |              4.5 |              1.3 |
+| 3rd Qu. |             12.0 |              726.8 |              3.0 |              1.0 |
+| Max.    |             18.0 |             4979.0 |             93.0 |             75.0 |
+
+Summary of Article Characteristics
 
 ## Visuals
+
+``` r
+# Boxplot 1 creation by position
+boxChannel <- ggplot(data = newsTrain)
+boxChannel + geom_jitter(aes(x = channel, y = shares, color = channel)) + 
+    geom_boxplot(aes(x = channel, y = shares)) + labs(x = "Article Channel", 
+    y = "Shares on Social Networks", title = "Boxplot for Number of Shares per Article Channel") + 
+    theme(legend.position = "none")
+```
+
+![](README_files/figure-gfm/boxPlot-1.png)<!-- -->
 
 ``` r
 # Filter out a few outliers to help in scatter plot
 newsTrain <- filter(newsTrain, n_tokens_content < 1500)
 newsTrain <- filter(newsTrain, n_tokens_content > 0)
-newsTrain <- filter(newsTrain, shares < 20000)
+newsTrain <- filter(newsTrain, shares < 25000)
 
 plot(newsTrain$n_tokens_title, newsTrain$shares)
 ```
