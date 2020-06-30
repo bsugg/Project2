@@ -11,7 +11,7 @@ Brian Sugg
       - [Metadata](#metadata)
       - [Import](#import)
       - [Slicing](#slicing)
-  - [\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*Summarizations](#summarizations)
+  - [Summarizations](#summarizations)
       - [Numeric Summaries](#numeric-summaries)
       - [Visuals](#visuals)
   - [\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*Modeling](#modeling)
@@ -190,9 +190,11 @@ head(newsSlice)
 
 ## Slicing
 
-You should randomly sample from (say using sample()) the (Monday) data
-in order to form a training (70% of the data) and test set (30% of the
-data). You should set the seed to make your work reproducible.
+Utilizing the newly created `newsSlice` data set, a random sample is
+performed for 70% of the data to make up the training set `newsTrain`,
+and the remaining 30% to be used later as the test set `newsTest`. A
+seed is set beforehand to ensure reproducible sampling in the future if
+needed.
 
 ``` r
 # Set seed for reproducible results
@@ -204,7 +206,13 @@ newsTrain <- newsSlice[train, ]
 newsTest <- newsSlice[test, ]
 ```
 
-# \*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*Summarizations
+For the analysis of articles published on **Monday** there are a total
+of 6,661 records sliced as:
+
+  - 4,662 records used in the `newsTrain` data set (69.99%)  
+  - 1,999 records used in the `newsTest` data set (30.01%)
+
+# Summarizations
 
 You should produce some basic (but meaningful) summary statistics about
 the **training** data you are working with.

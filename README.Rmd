@@ -97,19 +97,24 @@ head(newsSlice)
 
 ## Slicing  
 
-You should randomly sample from (say using sample()) the (Monday) data in order to form a training (70% of the data) and test set (30% of the data). You should set the seed to make your work reproducible.  
+Utilizing the newly created `newsSlice` data set, a random sample is performed for 70% of the data to make up the training set `newsTrain`, and the remaining 30% to be used later as the test set `newsTest`. A seed is set beforehand to ensure reproducible sampling in the future if needed.  
 
 ```{r dataSlicing}
 # Set seed for reproducible results
 set.seed(1)
 # Create the train and test sets
-train <- sample(1:nrow(newsSlice), size = nrow(newsSlice)*0.7)
-test <- dplyr::setdiff(1:nrow(newsSlice), train)
+train <- sample(1:nrow(newsSlice),size=nrow(newsSlice)*0.7)
+test <- dplyr::setdiff(1:nrow(newsSlice),train)
 newsTrain <- newsSlice[train, ]
 newsTest <- newsSlice[test, ]
 ```
 
-# *************************Summarizations  
+For the analysis of articles published on **`r params$day`** there are a total of `r format(nrow(newsSlice),big.mark=",")` records sliced as:  
+
+*  `r format(nrow(newsTrain),big.mark=",")` records used in the `newsTrain` data set (`r round(nrow(newsTrain)/nrow(newsSlice)*100,digits=2)`%)  
+*  `r format(nrow(newsTest),big.mark=",")` records used in the `newsTest` data set (`r round(nrow(newsTest)/nrow(newsSlice)*100,digits=2)`%)  
+
+# Summarizations  
 
 You should produce some basic (but meaningful) summary statistics about the **training** data you are working with.  
 
