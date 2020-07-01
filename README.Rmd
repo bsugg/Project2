@@ -153,7 +153,18 @@ boxChannel + geom_jitter(aes(x=channel,y=shares,color=channel)) + geom_boxplot(a
 ```
 
 ```{r scatterPlots}
-
+# Scatter plot 1 creation
+plotWordCount <- ggplot(data=newsTrain,aes(x=n_tokens_content,y=shares))
+plotWordCount + geom_point() + geom_smooth(method=NULL) + labs(x="Article Word Count",y="Shares",title="Article Word Count vs Shares")
+# Scatter plot 2 creation
+plotImages <- ggplot(data=newsTrain,aes(x=num_imgs,y=shares))
+plotImages + geom_point() + geom_smooth(method=NULL) + labs(x="Number of Images",y="Shares",title="Number of Images vs Shares")
+# Scatter plot 3 creation
+plotVideos <- ggplot(data=newsTrain,aes(x=n_tokens_content,y=shares))
+plotVideos + geom_point() + geom_smooth(method=NULL) + labs(x="Number of Videos",y="Shares",title="Number of Videos vs Shares")
+# Scatter plot 4 creation
+plotTitle <- ggplot(data=newsTrain,aes(x=n_tokens_title,y=shares))
+plotTitle + geom_point() + geom_jitter() + labs(x="Title Word Count",y="Shares",title="Title Word Count vs Shares")
 ```
 
 ```{r bar100}
@@ -161,24 +172,6 @@ boxChannel + geom_jitter(aes(x=channel,y=shares,color=channel)) + geom_boxplot(a
 stackBar <- ggplot(data=newsTrain,aes(x=n_tokens_title))
 stackBar + geom_bar(aes(fill=sharesPopular),position="fill") + labs(x="Title Word Count",y="Popularity %",title="Popularity (0=NotPopular,1=Popular) vs Title Word Count") + scale_fill_discrete(name="Popular Article")
 ```
-
-
-
-```{r scatter}
-# Filter out a few outliers to help in scatter plot
-newsTrain <- filter(newsTrain,n_tokens_content<1500)
-newsTrain <- filter(newsTrain,n_tokens_content>0)
-newsTrain <- filter(newsTrain,shares<25000)
-
-plot(newsTrain$n_tokens_title,newsTrain$shares)
-
-plot(newsTrain$n_tokens_content,newsTrain$shares)
-
-plot(newsTrain$num_imgs,newsTrain$shares)
-
-plot(newsTrain$num_videos,newsTrain$shares)
-```
-
 
 A few plots help illustrate the above numeric summaries, and offer additional views.  
 

@@ -479,6 +479,48 @@ boxChannel + geom_jitter(aes(x = channel, y = shares, color = channel)) +
 ![](README_files/figure-gfm/boxPlot-1.png)<!-- -->
 
 ``` r
+# Scatter plot 1 creation
+plotWordCount <- ggplot(data = newsTrain, aes(x = n_tokens_content, y = shares))
+plotWordCount + geom_point() + geom_smooth(method = NULL) + labs(x = "Article Word Count", 
+    y = "Shares", title = "Article Word Count vs Shares")
+```
+
+    ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
+
+![](README_files/figure-gfm/scatterPlots-1.png)<!-- -->
+
+``` r
+# Scatter plot 2 creation
+plotImages <- ggplot(data = newsTrain, aes(x = num_imgs, y = shares))
+plotImages + geom_point() + geom_smooth(method = NULL) + labs(x = "Number of Images", 
+    y = "Shares", title = "Number of Images vs Shares")
+```
+
+    ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
+
+![](README_files/figure-gfm/scatterPlots-2.png)<!-- -->
+
+``` r
+# Scatter plot 3 creation
+plotVideos <- ggplot(data = newsTrain, aes(x = n_tokens_content, y = shares))
+plotVideos + geom_point() + geom_smooth(method = NULL) + labs(x = "Number of Videos", 
+    y = "Shares", title = "Number of Videos vs Shares")
+```
+
+    ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
+
+![](README_files/figure-gfm/scatterPlots-3.png)<!-- -->
+
+``` r
+# Scatter plot 4 creation
+plotTitle <- ggplot(data = newsTrain, aes(x = n_tokens_title, y = shares))
+plotTitle + geom_point() + geom_jitter() + labs(x = "Title Word Count", 
+    y = "Shares", title = "Title Word Count vs Shares")
+```
+
+![](README_files/figure-gfm/scatterPlots-4.png)<!-- -->
+
+``` r
 # 100% Stack bar chart on popularity
 stackBar <- ggplot(data = newsTrain, aes(x = n_tokens_title))
 stackBar + geom_bar(aes(fill = sharesPopular), position = "fill") + labs(x = "Title Word Count", 
@@ -487,35 +529,6 @@ stackBar + geom_bar(aes(fill = sharesPopular), position = "fill") + labs(x = "Ti
 ```
 
 ![](README_files/figure-gfm/bar100-1.png)<!-- -->
-
-``` r
-# Filter out a few outliers to help in scatter plot
-newsTrain <- filter(newsTrain, n_tokens_content < 1500)
-newsTrain <- filter(newsTrain, n_tokens_content > 0)
-newsTrain <- filter(newsTrain, shares < 25000)
-
-plot(newsTrain$n_tokens_title, newsTrain$shares)
-```
-
-![](README_files/figure-gfm/scatter-1.png)<!-- -->
-
-``` r
-plot(newsTrain$n_tokens_content, newsTrain$shares)
-```
-
-![](README_files/figure-gfm/scatter-2.png)<!-- -->
-
-``` r
-plot(newsTrain$num_imgs, newsTrain$shares)
-```
-
-![](README_files/figure-gfm/scatter-3.png)<!-- -->
-
-``` r
-plot(newsTrain$num_videos, newsTrain$shares)
-```
-
-![](README_files/figure-gfm/scatter-4.png)<!-- -->
 
 A few plots help illustrate the above numeric summaries, and offer
 additional views.
