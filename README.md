@@ -555,6 +555,8 @@ Feel free to use code similar to the notes or use the caret package.
 
 ## \*\*\*\*\*\*\*\*\*\*Ensemble Model
 
+Random Forest
+
 ### Fit
 
 Fit model on training data set.
@@ -664,11 +666,45 @@ misclassRate
 
 ## \*\*\*\*\*\*\*\*\*\*Linear Regression Model
 
+Generalized Linear Model
+
 ### Fit
 
 Fit model on training data set.
 
+``` r
+# 1. Use trainControl() function to control computations and set number
+# of desired folds (10) for cross validation
+trctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 3)
+# 2. Set a seed for reproducible results
+set.seed(3333)
+# 3. Use train() function to determine a random forest model of best
+# fit
+linReg_fit <- train(sharesPopular ~ ., data = newsTrain[, c(1:29, 38:58, 
+    60)], method = "glm", trControl = trctrl, preProcess = c("center", 
+    "scale"), tuneLength = 10)
+```
+
 ### Selection
+
+``` r
+# Print results with accuracy for best fit
+linReg_fit
+```
+
+    ## Generalized Linear Model 
+    ## 
+    ## 4582 samples
+    ##   50 predictor
+    ##    2 classes: '0', '1' 
+    ## 
+    ## Pre-processing: centered (50), scaled (50) 
+    ## Resampling: Cross-Validated (10 fold, repeated 3 times) 
+    ## Summary of sample sizes: 4123, 4124, 4124, 4125, 4123, 4124, ... 
+    ## Resampling results:
+    ## 
+    ##   Accuracy   Kappa    
+    ##   0.6361908  0.2722895
 
 Your methodology for choosing your model during the training phase
 should be explained.
@@ -680,6 +716,52 @@ using cross-validation, AIC, or your preferred method (all on the
 training data set only\!) you should then compare them on the test set.
 
 Include metrics for accuracy and misclassification rate.
+
+``` r
+# Create predictions of class variable on the test data set using our
+# model
+testPredLin <- predict(linReg_fit, newdata = newsTest)
+# Generate confusion matrix showing table of results with accuracy
+conMatrixLin <- confusionMatrix(testPredLin, newsTest$sharesPopular)
+conMatrixLin
+```
+
+    ## Confusion Matrix and Statistics
+    ## 
+    ##           Reference
+    ## Prediction   0   1
+    ##          0 640 368
+    ##          1 334 623
+    ##                                          
+    ##                Accuracy : 0.6427         
+    ##                  95% CI : (0.6211, 0.664)
+    ##     No Information Rate : 0.5043         
+    ##     P-Value [Acc > NIR] : <2e-16         
+    ##                                          
+    ##                   Kappa : 0.2857         
+    ##                                          
+    ##  Mcnemar's Test P-Value : 0.2129         
+    ##                                          
+    ##             Sensitivity : 0.6571         
+    ##             Specificity : 0.6287         
+    ##          Pos Pred Value : 0.6349         
+    ##          Neg Pred Value : 0.6510         
+    ##              Prevalence : 0.4957         
+    ##          Detection Rate : 0.3257         
+    ##    Detection Prevalence : 0.5130         
+    ##       Balanced Accuracy : 0.6429         
+    ##                                          
+    ##        'Positive' Class : 0              
+    ## 
+
+``` r
+# Use values from confusion matrix to calculate misclassification rate
+misclassRate <- 1 - sum(diag(conMatrixLin$table))/sum(conMatrixLin$table)
+# Print the calculated misclassification rate:
+misclassRate
+```
+
+    ## [1] 0.3572519
 
 # \*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*Automation
 
