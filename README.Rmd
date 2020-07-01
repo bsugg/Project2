@@ -162,9 +162,6 @@ plotImages + geom_point() + geom_smooth(method=NULL) + labs(x="Number of Images"
 # Scatter plot 3 creation
 plotVideos <- ggplot(data=newsTrain,aes(x=n_tokens_content,y=shares))
 plotVideos + geom_point() + geom_smooth(method=NULL) + labs(x="Number of Videos",y="Shares",title="Number of Videos vs Shares")
-# Scatter plot 4 creation
-plotTitle <- ggplot(data=newsTrain,aes(x=n_tokens_title,y=shares))
-plotTitle + geom_point() + geom_jitter() + labs(x="Title Word Count",y="Shares",title="Title Word Count vs Shares")
 ```
 
 ```{r bar100}
@@ -220,18 +217,20 @@ Include metrics for accuracy and misclassification rate.
 
 ```{r randomForestPredict}
 # Create predictions of class variable on the test data set using our model
-testPredEns <- predict(randFor_fit, newdata = newsTest)
+testPredRF <- predict(randFor_fit, newdata = newsTest)
 # Generate confusion matrix showing table of results with accuracy
-conMatrixEns <- confusionMatrix(testPredEns,newsTest$sharesPopular)
-conMatrixEns
+conMatrixRF <- confusionMatrix(testPredRF,newsTest$sharesPopular)
+conMatrixRF
 ```
 
 ```{r randomForestMisRate}
 # Use values from confusion matrix to calculate misclassification rate
-misclassRate <- 1 - sum(diag(conMatrixEns$table))/sum(conMatrixEns$table)
-# Print the calculated misclassification rate:
-misclassRate
+misclassRateRF <- 1 - sum(diag(conMatrixRF$table))/sum(conMatrixRF$table)
 ```
+
+Performance metrics for the **Random Forest** model predictions on `newsTest` with **`MTRY=``r randFor_fit$bestTune[[1]][[1]]`**:  
+**Accuracy:** `r round(conMatrixRF$overall[1],4)`  
+**Misclassification Rate:** `r round(misclassRateRF,4)`  
 
 ## **********Linear Regression Model  
 
@@ -246,7 +245,7 @@ Fit model on training data set.
 trctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 3)
 # 2. Set a seed for reproducible results
 set.seed(3333)
-# 3. Use train() function to determine a random forest model of best fit
+# 3. Use train() function to determine a generalized linear regression model of best fit
 linReg_fit <- train(sharesPopular ~ ., data = newsTrain[,c(1:29,38:58,60)], method = "glm", trControl=trctrl, preProcess = c("center", "scale"), tuneLength = 10)
 ```
 
@@ -267,18 +266,20 @@ Include metrics for accuracy and misclassification rate.
 
 ```{r linRegPredict}
 # Create predictions of class variable on the test data set using our model
-testPredLin <- predict(linReg_fit, newdata = newsTest)
+testPredGLM <- predict(linReg_fit, newdata = newsTest)
 # Generate confusion matrix showing table of results with accuracy
-conMatrixLin <- confusionMatrix(testPredLin,newsTest$sharesPopular)
-conMatrixLin
+conMatrixGLM <- confusionMatrix(testPredGLM,newsTest$sharesPopular)
+conMatrixGLM
 ```
 
 ```{r linRegMisRate}
 # Use values from confusion matrix to calculate misclassification rate
-misclassRate <- 1 - sum(diag(conMatrixLin$table))/sum(conMatrixLin$table)
-# Print the calculated misclassification rate:
-misclassRate
+misclassRateGLM <- 1 - sum(diag(conMatrixGLM$table))/sum(conMatrixGLM$table)
 ```
+
+Performance metrics for the **Generalized Linear Regression** model predictions on `newsTest`:  
+**Accuracy:** `r round(conMatrixGLM$overall[1],4)`  
+**Misclassification Rate:** `r round(misclassRateGLM,4)`  
 
 # *************************Automation  
 
