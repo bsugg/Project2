@@ -192,7 +192,21 @@ Feel free to use code similar to the notes or use the caret package.
 
 Fit model on training data set.  
 
+```{r randomForestFit}
+# 1. Use trainControl() function to control computations and set number of desired folds (10) for cross validation
+trctrl <- trainControl(method = "repeatedcv", number = 2, repeats = 3)
+# 2. Set a seed for reproducible results
+set.seed(3333)
+# 3. Use train() function to determine a random forest model of best fit
+randFor_fit <- train(sharesPopular ~ ., data = newsTrain[,c(1:29,38:58,60)], method = "rf", trControl=trctrl, preProcess = c("center", "scale"), tuneLength = 10)
+```
+
 ### Selection  
+
+```{r randomForestSelect}
+# Print results with accuracy for best fit
+randFor_fit
+```
 
 Your methodology for choosing your model during the training phase should be explained.  
 
@@ -201,6 +215,21 @@ Your methodology for choosing your model during the training phase should be exp
 After training/tuning your two types of models (linear and non-linear) using cross-validation, AIC, or your preferred method (all on the training data set only!) you should then compare them on the test set.  
 
 Include metrics for accuracy and misclassification rate.  
+
+```{r randomForestPredict}
+# Create predictions of class variable on the test data set using our model
+testPredEns <- predict(randFor_fit, newdata = newsTest)
+# Generate confusion matrix showing table of results with accuracy
+conMatrixEns <- confusionMatrix(testPredEns,newsTest$sharesPopular)
+conMatrixEns
+```
+
+```{r randomForestMisRate}
+# Use values from confusion matrix to calculate misclassification rate
+misclassRate <- 1 - sum(diag(conMatrixEns$table))/sum(conMatrixEns$table)
+# Print the calculated misclassification rate:
+misclassRate
+```
 
 ## **********Linear Regression Model  
 

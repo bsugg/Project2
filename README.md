@@ -559,7 +559,51 @@ Feel free to use code similar to the notes or use the caret package.
 
 Fit model on training data set.
 
+``` r
+# 1. Use trainControl() function to control computations and set number
+# of desired folds (10) for cross validation
+trctrl <- trainControl(method = "repeatedcv", number = 2, repeats = 3)
+# 2. Set a seed for reproducible results
+set.seed(3333)
+# 3. Use train() function to determine a random forest model of best
+# fit
+randFor_fit <- train(sharesPopular ~ ., data = newsTrain[, c(1:29, 38:58, 
+    60)], method = "rf", trControl = trctrl, preProcess = c("center", "scale"), 
+    tuneLength = 10)
+```
+
 ### Selection
+
+``` r
+# Print results with accuracy for best fit
+randFor_fit
+```
+
+    ## Random Forest 
+    ## 
+    ## 4582 samples
+    ##   50 predictor
+    ##    2 classes: '0', '1' 
+    ## 
+    ## Pre-processing: centered (50), scaled (50) 
+    ## Resampling: Cross-Validated (2 fold, repeated 3 times) 
+    ## Summary of sample sizes: 2291, 2291, 2291, 2291, 2291, 2291, ... 
+    ## Resampling results across tuning parameters:
+    ## 
+    ##   mtry  Accuracy   Kappa    
+    ##    2    0.6332024  0.2663877
+    ##    7    0.6334206  0.2668002
+    ##   12    0.6330569  0.2660739
+    ##   18    0.6290557  0.2580615
+    ##   23    0.6313109  0.2625838
+    ##   28    0.6326204  0.2652033
+    ##   34    0.6301470  0.2602483
+    ##   39    0.6307289  0.2614111
+    ##   44    0.6337844  0.2675219
+    ##   50    0.6287647  0.2574817
+    ## 
+    ## Accuracy was used to select the optimal model using the largest value.
+    ## The final value used for the model was mtry = 44.
 
 Your methodology for choosing your model during the training phase
 should be explained.
@@ -571,6 +615,52 @@ using cross-validation, AIC, or your preferred method (all on the
 training data set only\!) you should then compare them on the test set.
 
 Include metrics for accuracy and misclassification rate.
+
+``` r
+# Create predictions of class variable on the test data set using our
+# model
+testPredEns <- predict(randFor_fit, newdata = newsTest)
+# Generate confusion matrix showing table of results with accuracy
+conMatrixEns <- confusionMatrix(testPredEns, newsTest$sharesPopular)
+conMatrixEns
+```
+
+    ## Confusion Matrix and Statistics
+    ## 
+    ##           Reference
+    ## Prediction   0   1
+    ##          0 634 367
+    ##          1 340 624
+    ##                                           
+    ##                Accuracy : 0.6402          
+    ##                  95% CI : (0.6185, 0.6615)
+    ##     No Information Rate : 0.5043          
+    ##     P-Value [Acc > NIR] : <2e-16          
+    ##                                           
+    ##                   Kappa : 0.2805          
+    ##                                           
+    ##  Mcnemar's Test P-Value : 0.3282          
+    ##                                           
+    ##             Sensitivity : 0.6509          
+    ##             Specificity : 0.6297          
+    ##          Pos Pred Value : 0.6334          
+    ##          Neg Pred Value : 0.6473          
+    ##              Prevalence : 0.4957          
+    ##          Detection Rate : 0.3226          
+    ##    Detection Prevalence : 0.5094          
+    ##       Balanced Accuracy : 0.6403          
+    ##                                           
+    ##        'Positive' Class : 0               
+    ## 
+
+``` r
+# Use values from confusion matrix to calculate misclassification rate
+misclassRate <- 1 - sum(diag(conMatrixEns$table))/sum(conMatrixEns$table)
+# Print the calculated misclassification rate:
+misclassRate
+```
+
+    ## [1] 0.3597964
 
 ## \*\*\*\*\*\*\*\*\*\*Linear Regression Model
 
