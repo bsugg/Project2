@@ -19,8 +19,7 @@ Brian Sugg
           - [Fit](#fit)
           - [Selection](#selection)
           - [Test Set Predictions](#test-set-predictions)
-      - [\*\*\*\*\*\*\*\*\*\*Linear Regression
-        Model](#linear-regression-model)
+      - [Linear Regression Model](#linear-regression-model)
           - [Fit](#fit-1)
           - [Selection](#selection-1)
           - [Test Set Predictions](#test-set-predictions-1)
@@ -542,13 +541,13 @@ the predicted value is 0 then we anticipate less than 1,400 shares.
 Two types of models will be fitted, tested, and analyzed for accuracy
 and misclassification of this prediction. As mentioned previously, the
 first will be an Ensemble Model via Random Forests and the second will
-be a Linear Regression model via a Generalized Linear Model. Both test
-all possible predictor variables.
+be a Linear Regression model via a Generalized Linear Model for Logistic
+Regression. Both will test all possible predictor variables.
 
-The fit process for both will utilize the `caret` package and available
-relevant options for each model type, with more detail to follow. For
-each fit, we will rely on the functionality of the `caret` package to
-assist with k-fold cross validation, centering, and scaling.
+The fit process will utilize the `caret` package and available relevant
+options for each model type, with more detail to follow. For each fit,
+we will rely on the functionality of the `caret` package to assist with
+k-fold cross validation, centering, and scaling.
 
 ## Ensemble Model
 
@@ -624,8 +623,8 @@ randFor_fit
 Given our training parameters discussed above, utilizing k-fold cross
 validaiton, our model selection is based on the provided training
 calculations output from the `caret` package, which indicates an optimal
-`MTRY` value of **44**. This model fit will be testing on `newsTest`
-data set and then measured for actual accuracy and associated
+`MTRY` value of **44**. This model fit will be tested on `newsTest` data
+set and then measured for actual accuracy and associated
 misclassification rate.
 
 ### Test Set Predictions
@@ -684,24 +683,38 @@ Performance metrics for the **Random Forest** model predictions on
 These values will be later compared against the upcoming Linear
 Regression Model to determine best performance between the two.
 
-## \*\*\*\*\*\*\*\*\*\*Linear Regression Model
+## Linear Regression Model
 
-Generalized Linear Model
+The approach for the Generalized Linear Model of Logistic Regression was
+chosen given the non-continuous, binary nature of our outcome of
+predicting either a 0 or 1 for popularity. The same set of possible
+predictors will be provided
 
 ### Fit
 
-Fit model on training data set.
+The fit for the logistic regression model is done here again using
+k-fold cross validation on the `newsTrain` data set. Since less
+computation is required, we have increased our training to 10 folds,
+with resampling repeated 5 times. The `family="binomial"` argument has
+been provided to the `glm` method to explicitly state the desired fit of
+logistic regression, although the `caret` package should recognize this
+as the optimal approach even without the argument.
+
+As before, all `weekday_is_*` variables have been excluded from the
+training since the data set is filtered on just one published day of the
+week. The train data is still centered and scaled using the `preProcess`
+option of the `train()` function from the `caret` package.
 
 ``` r
 # 1. Use trainControl() function to control computations and set number
-# of desired folds (10) for cross validation
-trctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 3)
+# of desired folds for cross validation
+trctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 5)
 # 2. Set a seed for reproducible results
 set.seed(3333)
 # 3. Use train() function to determine a generalized linear regression
 # model of best fit
-linReg_fit <- train(sharesPopular ~ ., data = newsTrain[, c(1:29, 38:58, 
-    60)], method = "glm", trControl = trctrl, preProcess = c("center", 
+logReg_fit <- train(sharesPopular ~ ., data = newsTrain[, c(1:29, 38:58, 
+    60)], method = "glm", family = "binomial", trControl = trctrl, preProcess = c("center", 
     "scale"), tuneLength = 10)
 ```
 
@@ -709,7 +722,7 @@ linReg_fit <- train(sharesPopular ~ ., data = newsTrain[, c(1:29, 38:58,
 
 ``` r
 # Print results with accuracy for best fit
-linReg_fit
+logReg_fit
 ```
 
     ## Generalized Linear Model 
@@ -719,28 +732,29 @@ linReg_fit
     ##    2 classes: '0', '1' 
     ## 
     ## Pre-processing: centered (50), scaled (50) 
-    ## Resampling: Cross-Validated (10 fold, repeated 3 times) 
+    ## Resampling: Cross-Validated (10 fold, repeated 5 times) 
     ## Summary of sample sizes: 4123, 4124, 4124, 4125, 4123, 4124, ... 
     ## Resampling results:
     ## 
     ##   Accuracy   Kappa    
-    ##   0.6361908  0.2722895
+    ##   0.6354471  0.2707945
 
-Your methodology for choosing your model during the training phase
-should be explained.
+Given our training parameters discussed above, utilizing k-fold cross
+validaiton, our model selection is based on the provided training
+calculations output from the `caret` package. This model fit will be
+tested on `newsTest` data set and then measured for actual accuracy and
+associated misclassification rate.
 
 ### Test Set Predictions
 
-After training/tuning your two types of models (linear and non-linear)
-using cross-validation, AIC, or your preferred method (all on the
-training data set only\!) you should then compare them on the test set.
-
-Include metrics for accuracy and misclassification rate.
+The selected model is now applied to the `newsTest` data set, and a
+confusion matrix provided to detail the resulting accuracy of our
+*predictions vs the actual reference values* from the test set.
 
 ``` r
 # Create predictions of class variable on the test data set using our
 # model
-testPredGLM <- predict(linReg_fit, newdata = newsTest)
+testPredGLM <- predict(logReg_fit, newdata = newsTest)
 # Generate confusion matrix showing table of results with accuracy
 conMatrixGLM <- confusionMatrix(testPredGLM, newsTest$sharesPopular)
 conMatrixGLM
@@ -783,6 +797,9 @@ Performance metrics for the **Generalized Linear Regression** model
 predictions on `newsTest`:  
 **Accuracy:** 0.6427  
 **Misclassification Rate:** 0.3573
+
+These values will be compared in the upcoming *Conclusion* section to
+determine the best performance between the two models.
 
 # \*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*Automation
 
