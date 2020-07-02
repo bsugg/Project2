@@ -246,7 +246,7 @@ As before, all `weekday_is_*` variables have been excluded from the training sin
 ```{r logRegFit}
 # 1. Use trainControl() function to control computations and set number of desired folds for cross validation
 trctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 5)
-# 2. Set a seed for reproducible results
+# 2. Set a seed for reproducible result
 set.seed(3333)
 # 3. Use train() function to determine a generalized linear regression model of best fit
 logReg_fit <- train(sharesPopular ~ ., data = newsTrain[,c(1:29,38:58,60)], method = "glm", family="binomial", trControl=trctrl, preProcess = c("center", "scale"), tuneLength = 10)
