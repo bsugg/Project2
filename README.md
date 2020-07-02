@@ -14,8 +14,8 @@ Brian Sugg
   - [Summarizations](#summarizations)
       - [Numeric Summaries](#numeric-summaries)
       - [Visuals](#visuals)
-  - [\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*Modeling](#modeling)
-      - [\*\*\*\*\*\*\*\*\*\*Ensemble Model](#ensemble-model)
+  - [Modeling](#modeling)
+      - [Ensemble Model](#ensemble-model)
           - [Fit](#fit)
           - [Selection](#selection)
           - [Test Set Predictions](#test-set-predictions)
@@ -529,32 +529,55 @@ since we are going to automate things, there is no need to try and
 explain particular trends in the plots you see (unless you want to try
 and automate that too\!).
 
-# \*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*Modeling
+# Modeling
 
-Once you have your training data set, we are ready to fit some models.
-You should fit two types of models to predict the shares. One model
-should be an ensemble model (bagged trees, random forests, or boosted
-trees) and one should be a linear regression model (or collection of
-them that you’ll choose from).
+Following a similar method from the original use case presented by
+documentation on the UCI website, we will make our prediction challenge
+into a binary classification problem by dividing the `shares` variable
+into two groups to represent shares popularity, as created in the
+`sharesPopular` variable earlier. If the predicted value or
+`sharesPopular` is 1, then we anticipate at least 1,400 shares. Else, if
+the predicted value is 0 then we anticipate less than 1,400 shares.
 
-The article referenced in the UCI website mentions that they made the
-problem into a binary classification problem by dividing the shares into
-two groups (\< 1400 and ≥ 1400), you can do this if you’d like or simply
-try to predict the shares themselves.
+Two types of models will be fitted, tested, and analyzed for accuracy
+and misclassification of this prediction. As mentioned previously, the
+first will be an Ensemble Model via Random Forests and the second will
+be a Linear Regression model via a Generalized Linear Model. Both test
+all possible predictor variables.
 
-Feel free to use code similar to the notes or use the caret package.
+The fit process for both will utilize the `caret` package and available
+relevant options for each model type, with more detail to follow. For
+each fit, we will rely on the functionality of the `caret` package to
+assist with k-fold cross validation, centering, and scaling.
 
-## \*\*\*\*\*\*\*\*\*\*Ensemble Model
+## Ensemble Model
 
-Random Forest
+The approach with Random Forests includes building decision tress on
+bootstrapped training samples, then relying on a random sample of *m
+predictors* to be used as split candidates from the full set of provided
+predictors. This random sample of a small subset of predictors helps
+decorrelate the trees and prevent any strong predictors from
+consistently occuring in each tree. This differentiates Random Forests
+from Bagging, offering a slight improvement in prediction, which is why
+this method has been chosen in this exercise.
 
 ### Fit
 
-Fit model on training data set.
+The fit for the Random Forests model is done here using k-fold cross
+validation on the `newsTrain` data set. Since fitting for this type of
+model is computationally expensive, only 5 folds have been chosen for
+cross validation, repeated 3 times. A seed has also been set to ensure
+reproducible results.
+
+Since our data set has been filtered on articles published for one
+specific day of the week, all `weekday_is_*` variables have been
+excluded from the training. Also, the data is centered and scaled using
+the `preProcess` option of the `train()` function from the `caret`
+package.
 
 ``` r
 # 1. Use trainControl() function to control computations and set number
-# of desired folds (10) for cross validation
+# of desired folds for cross validation
 trctrl <- trainControl(method = "repeatedcv", number = 2, repeats = 3)
 # 2. Set a seed for reproducible results
 set.seed(3333)
@@ -598,16 +621,18 @@ randFor_fit
     ## Accuracy was used to select the optimal model using the largest value.
     ## The final value used for the model was mtry = 44.
 
-Your methodology for choosing your model during the training phase
-should be explained.
+Given our training parameters discussed above, utilizing k-fold cross
+validaiton, our model selection is based on the provided training
+calculations output from the `caret` package, which indicates an optimal
+`MTRY` value of **44**. This model fit will be testing on `newsTest`
+data set and then measured for actual accuracy and associated
+misclassification rate.
 
 ### Test Set Predictions
 
-After training/tuning your two types of models (linear and non-linear)
-using cross-validation, AIC, or your preferred method (all on the
-training data set only\!) you should then compare them on the test set.
-
-Include metrics for accuracy and misclassification rate.
+The selected model is now applied to the `newsTest` data set, and a
+confusion matrix provided to detail the resulting accuracy of our
+*predictions vs the actual reference values* from the test set.
 
 ``` r
 # Create predictions of class variable on the test data set using our
@@ -655,6 +680,9 @@ Performance metrics for the **Random Forest** model predictions on
 `newsTest` with **`MTRY=`44**:  
 **Accuracy:** 0.6402  
 **Misclassification Rate:** 0.3598
+
+These values will be later compared against the upcoming Linear
+Regression Model to determine best performance between the two.
 
 ## \*\*\*\*\*\*\*\*\*\*Linear Regression Model
 
@@ -752,8 +780,8 @@ misclassRateGLM <- 1 - sum(diag(conMatrixGLM$table))/sum(conMatrixGLM$table)
 ```
 
 Performance metrics for the **Generalized Linear Regression** model
-are:  
-**Accuracy:** 0.6362  
+predictions on `newsTest`:  
+**Accuracy:** 0.6427  
 **Misclassification Rate:** 0.3573
 
 # \*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*Automation
