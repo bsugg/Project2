@@ -284,28 +284,22 @@ Performance metrics for the **Generalized Linear Regression** model predictions 
 
 These values will be compared in the upcoming *Conclusion* section to determine the best performance between the two models.  
 
-# *************************Automation  
-
-Once you’ve completed the above for Monday, adapt the code so that you can use a parameter in your build process that will cycle through the weekday_is_* variables.  
-
-The analysis for [Monday is available here](MondayAnalysis.md)
-
 # Conclusion
 
 To briefly recap the performance metrics of accuracy and misclassifications rates for both models:
 
-Performance metrics for the **Random Forest** model predictions on `newsTest` with **`MTRY=``r randFor_fit$bestTune[[1]][[1]]`**:  
+**Random Forest** model predictions on `newsTest` with **`MTRY=``r randFor_fit$bestTune[[1]][[1]]`**:  
 **Accuracy:** `r round(conMatrixRF$overall[1],4)`  
 **Misclassification Rate:** `r round(misclassRateRF,4)`  
 
-Performance metrics for the **Generalized Linear Regression** model predictions on `newsTest`:  
+**Generalized Linear Regression** model predictions on `newsTest`:  
 **Accuracy:** `r round(conMatrixGLM$overall[1],4)`  
 **Misclassification Rate:** `r round(misclassRateGLM,4)`  
 
 ```{r bestModelSelection, include=FALSE}
-bestModel <- ifelse(conMatrixGLM$overall[1]>conMatrixRF$overall[1],"Generalized Linear Regression of Logistic Regression","Random Forests")
+bestModel <- ifelse(conMatrixGLM$overall[1]>conMatrixRF$overall[1],"Generalized Linear Regression with Logistic Regression","the Ensemble Model with Random Forests")
 bestModelAcc <- ifelse(conMatrixGLM$overall[1]>conMatrixRF$overall[1],round(conMatrixGLM$overall[1],4),round(conMatrixRF$overall[1],4))
 bestModelMR <- ifelse(conMatrixGLM$overall[1]>conMatrixRF$overall[1],round(misclassRateGLM,4),round(misclassRateRF,4))
 ```
 
-This shows the best model for predicting the popularity of articles published on a `r params$day` is the `r bestModel`. This is based on having a higher accuracy value of `r bestModelAcc` with an associated misclassification rate of `r bestModelMR`.
+This shows the best method for predicting the popularity of articles published on a **`r params$day`** is done using **`r bestModel`**. This is based on having a higher **accuracy value of `r bestModelAcc`** with an associated **misclassification rate of `r bestModelMR`**.  

@@ -23,7 +23,6 @@ Brian Sugg
           - [Fit](#fit-1)
           - [Selection](#selection-1)
           - [Test Set Predictions](#test-set-predictions-1)
-  - [\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*Automation](#automation)
   - [Conclusion](#conclusion)
 
 # Introduction
@@ -801,30 +800,21 @@ predictions on `newsTest`:
 These values will be compared in the upcoming *Conclusion* section to
 determine the best performance between the two models.
 
-# \*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*Automation
-
-Once you’ve completed the above for Monday, adapt the code so that you
-can use a parameter in your build process that will cycle through the
-weekday\_is\_\* variables.
-
-The analysis for [Monday is available here](MondayAnalysis.md)
-
 # Conclusion
 
 To briefly recap the performance metrics of accuracy and
 misclassifications rates for both models:
 
-Performance metrics for the **Random Forest** model predictions on
-`newsTest` with **`MTRY=`44**:  
+**Random Forest** model predictions on `newsTest` with **`MTRY=`44**:  
 **Accuracy:** 0.6402  
 **Misclassification Rate:** 0.3598
 
-Performance metrics for the **Generalized Linear Regression** model
-predictions on `newsTest`:  
+**Generalized Linear Regression** model predictions on `newsTest`:  
 **Accuracy:** 0.6427  
 **Misclassification Rate:** 0.3573
 
-This shows the best model for predicting the popularity of articles
-published on a Monday is the Generalized Linear Regression of Logistic
-Regression. This is based on having a higher accuracy value of 0.6427
-with an associated misclassification rate of 0.3573.
+This shows the best method for predicting the popularity of articles
+published on a **Monday** is done using **Generalized Linear Regression
+with Logistic Regression**. This is based on having a higher **accuracy
+value of 0.6427** with an associated **misclassification rate of
+0.3573**.
