@@ -46,7 +46,7 @@ In total there are **58 possible predictive attributes** with the goal of predic
 
 The methods used in the creation of both models will follow a similar approach. The cleansed data set for each day of the week will be split into a training (70% of records) and a testing set (30% of records). The training set will undergo k-fold cross validation for the model fit, with a varying level of folds and resampling for each model type. The fitted model will be selected automatically by the `caret` package based on resulting accuracy, and then applied to the testing data set to determine actual accuracy and associated misclassification rate.  
 
-The non-linear ensemble model for this exercise will be random forests, and the linear model will be a logistic regression model under the family of generalized linear regression. More detail around these two model types is discussed further in their relevant sections.
+The non-linear ensemble model for this exercise will be Random Forests, and the linear model will be a Logistic Regression model under the family of Generalized Linear Regression. More detail around these two model types is discussed further in their relevant sections.
 
 The final *Conclusion* section will automatically select and display the accuracy and misclassification rate from the best model, determined by accuracy.  
 

@@ -47,7 +47,7 @@ In total there are **58 possible predictive attributes** with the goal of predic
 
 The methods used in the creation of both models will follow a similar approach. The cleansed data set for each day of the week will be split into a training (70% of records) and a testing set (30% of records). The training set will undergo k-fold cross validation for the model fit, with a varying level of folds and resampling for each model type. The fitted model will be selected automatically by the `caret` package based on resulting accuracy, and then applied to the testing data set to determine actual accuracy and associated misclassification rate.  
 
-The non-linear ensemble model for this exercise will be random forests, and the linear model will be a logistic regression model under the family of generalized linear regression. More detail around these two model types is discussed further in their relevant sections.
+The non-linear ensemble model for this exercise will be Random Forests, and the linear model will be a Logistic Regression model under the family of Generalized Linear Regression. More detail around these two model types is discussed further in their relevant sections.
 
 The final *Conclusion* section will automatically select and display the accuracy and misclassification rate from the best model, determined by accuracy.  
 
@@ -181,7 +181,7 @@ The general things that the plots describe should be explained but, since we are
 
 Following a similar method from the original use case presented by documentation on the UCI website, we will make our prediction challenge into a binary classification problem by dividing the `shares` variable into two groups to represent shares popularity, as created in the `sharesPopular` variable earlier. If the predicted value or `sharesPopular` is 1, then we anticipate at least 1,400 shares. Else, if the predicted value is 0 then we anticipate less than 1,400 shares.  
 
-Two types of models will be fitted, tested, and analyzed for accuracy and misclassification of this prediction. As mentioned previously, the first will be an Ensemble Model via Random Forests and the second will be a Linear Regression model via a Generalized Linear Model for Logistic Regression. Both will test all possible predictor variables.  
+Two types of models will be fitted, tested, and analyzed for accuracy and misclassification of this prediction. As mentioned previously, the first will be an Ensemble Model with Random Forests and the second will be a Generalized Linear Model with Logistic Regression. Both will test all possible predictor variables.  
 
 The fit process will utilize the `caret` package and available relevant options for each model type, with more detail to follow. For each fit, we will rely on the functionality of the `caret` package to assist with k-fold cross validation, centering, and scaling.  
 
@@ -200,7 +200,7 @@ Since our data set has been filtered on articles published for one specific day 
 trctrl <- trainControl(method = "repeatedcv", number = 2, repeats = 3)
 # 2. Set a seed for reproducible results
 set.seed(3333)
-# 3. Use train() function to determine a random forest model of best fit
+# 3. Use train() function to determine a random forests model of best fit
 randFor_fit <- train(sharesPopular ~ ., data = newsTrain[,c(1:29,38:58,60)], method = "rf", trControl=trctrl, preProcess = c("center", "scale"), tuneLength = 10)
 ```
 
@@ -230,7 +230,7 @@ conMatrixRF
 misclassRateRF <- 1 - sum(diag(conMatrixRF$table))/sum(conMatrixRF$table)
 ```
 
-Performance metrics for the **Random Forest** model predictions on `newsTest` with **`MTRY=``r randFor_fit$bestTune[[1]][[1]]`**:  
+Performance metrics for the **Random Forests** model predictions on `newsTest` with **`MTRY=``r randFor_fit$bestTune[[1]][[1]]`**:  
 **Accuracy:** `r round(conMatrixRF$overall[1],4)`  
 **Misclassification Rate:** `r round(misclassRateRF,4)`  
 
@@ -238,7 +238,7 @@ These values will be later compared against the upcoming Linear Regression Model
 
 ## Linear Regression Model  
 
-The approach for the Generalized Linear Model of Logistic Regression was chosen given the non-continuous, binary nature of our outcome of predicting either a 0 or 1 for popularity. The same set of possible predictors will be provided.  
+The approach for the Generalized Linear Model with Logistic Regression was chosen given the non-continuous, binary nature of our outcome of predicting either a 0 or 1 for popularity. The same set of possible predictors will be provided.  
 
 ### Fit  
 
@@ -281,7 +281,7 @@ conMatrixGLM
 misclassRateGLM <- 1 - sum(diag(conMatrixGLM$table))/sum(conMatrixGLM$table)
 ```
 
-Performance metrics for the **Generalized Linear Regression** model predictions on `newsTest`:  
+Performance metrics for the **Generalized Linear Regression with Logistic Regression** model predictions on `newsTest`:  
 **Accuracy:** `r round(conMatrixGLM$overall[1],4)`  
 **Misclassification Rate:** `r round(misclassRateGLM,4)`  
 
@@ -291,16 +291,16 @@ These values will be compared in the upcoming *Conclusion* section to determine 
 
 To briefly recap the performance metrics of accuracy and misclassifications rates for both models:
 
-**Random Forest** model predictions on `newsTest` with **`MTRY=``r randFor_fit$bestTune[[1]][[1]]`**:  
+**Random Forests** model predictions on `newsTest` with **`MTRY=``r randFor_fit$bestTune[[1]][[1]]`**:  
 **Accuracy:** `r round(conMatrixRF$overall[1],4)`  
 **Misclassification Rate:** `r round(misclassRateRF,4)`  
 
-**Generalized Linear Regression** model predictions on `newsTest`:  
+**Generalized Linear Regression with Logistic Regression** model predictions on `newsTest`:  
 **Accuracy:** `r round(conMatrixGLM$overall[1],4)`  
 **Misclassification Rate:** `r round(misclassRateGLM,4)`  
 
 ```{r bestModelSelection, include=FALSE}
-bestModel <- ifelse(conMatrixGLM$overall[1]>conMatrixRF$overall[1],"Generalized Linear Regression with Logistic Regression","the Ensemble Model with Random Forests")
+bestModel <- ifelse(conMatrixGLM$overall[1]>conMatrixRF$overall[1],"Generalized Linear Regression with Logistic Regression","Ensemble Model with Random Forests")
 bestModelAcc <- ifelse(conMatrixGLM$overall[1]>conMatrixRF$overall[1],round(conMatrixGLM$overall[1],4),round(conMatrixRF$overall[1],4))
 bestModelMR <- ifelse(conMatrixGLM$overall[1]>conMatrixRF$overall[1],round(misclassRateGLM,4),round(misclassRateRF,4))
 ```
