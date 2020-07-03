@@ -1,0 +1,63 @@
+---
+title: "Project 2 Welcome"
+author: "Brian Sugg"
+date: "7/3/2020"
+output:
+  rmarkdown::github_document:
+    toc: true
+    toc_depth: 3
+---
+
+```{r setupREADME, include=FALSE}
+library(tidyverse)
+library(Lahman)
+library(formatR)
+library(dplyr)
+library(knitr)
+library(class)
+library(caret)
+library(e1071)
+library(randomForest)
+library(gbm)
+knitr::opts_chunk$set(echo=TRUE,tidy.opts=list(width.cutoff=70),tidy=TRUE)
+```
+
+# Introduction  
+
+## Purpose  
+
+The overall theme of this exercise is determining the popularity of online news. The goal is to create models for predicting the number of times a news article from *mashable.com* will be shared in social networks. Two models will be created: a linear regression model and a non-linear model. The parameter functionality of markdown will be used to automatically generate an analysis report for each day of the week that an article might be published.  
+
+## Data Description  
+
+The data comes from the *UC Irvine Machine Learning Repository* and can be found in its original form at this [link](https://archive.ics.uci.edu/ml/datasets/Online+News+Popularity#).  
+
+This data set covers a two year period, listing all published articles from Mashable and several variables of associated characteristics, such as:  
+
+*  Published Day of Week
+*  Channel, or Genre (Lifestyle, Business, World, Entertainment, etc.)
+*  Word Count
+*  Number of Images
+*  *...and several others...*
+
+In total there are **58 possible predictive attributes** with the goal of predicting the response variable of article popularity using a binary classification based on number of shares in social networks. The provided link above goes into more detail for all variables and their representation.  
+
+# Automation  
+
+```{r automation}
+# Create a vector of the elements to iterate over
+days <- c("Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday")
+
+# Render to .md the template for each param
+purrr::map(.x = days,.f=~rmarkdown::render(input="Template.Rmd",params=list(day=.x),output_file=paste0(.x,".md")))
+```
+
+A template file has been created that utilizes the above R markdown automation to generate a full analysis of methods used, metadata overview, data import and slicing, numeric summaries, model fit, model selection, and model testing for each day of the week. These individual analysis can be found at the below links:  
+
+The analysis for [Monday is available here](Monday.md).  
+The analysis for [Tuesday is available here](Tuesday.md).  
+The analysis for [Wednesday is available here](Wednesday.md).  
+The analysis for [Thursday is available here](Thursday.md).  
+The analysis for [Friday is available here](Friday.md).  
+The analysis for [Saturday is available here](Saturday.md).  
+The analysis for [Sunday is available here](Sunday.md).  

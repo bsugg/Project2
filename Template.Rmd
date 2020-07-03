@@ -41,7 +41,7 @@ This data set covers a two year period, listing all published articles from Mash
 *  Number of Images
 *  *...and several others...*
 
-In total there are **58 possible predictive attributes** with the goal of predicting the **response variable of number of shares in social networks**. The provided link above goes into more detail for all variables and their representation.  
+In total there are **58 possible predictive attributes** with the goal of predicting the response variable of article popularity using a binary classification based on number of shares in social networks. The provided link above goes into more detail for all variables and their representation.  
 
 ## *****Methods  
 
