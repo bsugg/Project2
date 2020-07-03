@@ -6,7 +6,7 @@ Brian Sugg
   - [Introduction](#introduction)
       - [Purpose](#purpose)
       - [Data Description](#data-description)
-      - [\*\*\*\*\*Methods](#methods)
+      - [Methods](#methods)
   - [Data](#data)
       - [Metadata](#metadata)
       - [Import](#import)
@@ -30,12 +30,13 @@ Brian Sugg
 ## Purpose
 
 The overall theme of this exercise is determining the popularity of
-online news. The goal is to create models for predicting the number of
-times a news article from *mashable.com* will be shared in social
-networks. Two models will be created: a linear regression model and a
-non-linear model. The parameter functionality of markdown will be used
-to automatically generate an analysis report for each day of the week
-that an article might be published.
+online news. The goal is to create models for predicting the popularity
+of news articles from *mashable.com* using binary classification to
+categorize article shares in social networks. Two models will be
+created: a linear regression model and a non-linear ensemble model. The
+parameter functionality of markdown will be used to automatically
+generate an analysis report for each day of the week that an article
+might be published.
 
 ## Data Description
 
@@ -59,10 +60,25 @@ classification based on number of shares in social networks. The
 provided link above goes into more detail for all variables and their
 representation.
 
-## \*\*\*\*\*Methods
+## Methods
 
-**To be filled in later** \>\> The methods you’ll use (roughly - more
-detail can be given later in the document).
+The methods used in the creation of both models will follow a similar
+approach. The cleansed data set for each day of the week will be split
+into a training (70% of records) and a testing set (30% of records). The
+training set will undergo k-fold cross validation for the model fit,
+with a varying level of folds and resampling for each model type. The
+fitted model will be selected automatically by the `caret` package based
+on resulting accuracy, and then applied to the testing data set to
+determine actual accuracy and associated misclassification rate.
+
+The non-linear ensemble model for this exercise will be random forests,
+and the linear model will be a logistic regression model under the
+family of generalized linear regression. More detail around these two
+model types is discussed further in their relevant sections.
+
+The final *Conclusion* section will automatically select and display the
+accuracy and misclassification rate from the best model, determined by
+accuracy.
 
 # Data
 
@@ -75,8 +91,8 @@ case this is something we wish to also predict. *Popularity* will be
 defined as any article that is shared at least 1,400 times.
 
 The provided predictor variables have a wide range of characteristics
-they represent. A listing of some of the primary variables this analysis
-will focus on, including the thought process behind their selection:
+they represent. A listing of some of the primary variables to consider
+in this analysis:
 
   - `n_tokens_title` - number of words in the title
       - Are short titles more catchy to the reader?  
@@ -427,9 +443,7 @@ World
 Numeric summaries of different article stats help reveal a few
 observations from the training data set regarding the length of article
 titles, the length of articles, the number of images within an article,
-and the number of videos within an article. The correlation between
-these variables and the response variable `shares` will be explored
-further with visuals in the following section.
+and the number of videos within an article.
 
 ``` r
 knitr::kable(cbind(`Title Word Count` = round(summary(newsTrain$n_tokens_title), 

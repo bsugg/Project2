@@ -6,6 +6,7 @@ Brian Sugg
   - [Introduction](#introduction)
       - [Purpose](#purpose)
       - [Data Description](#data-description)
+      - [Methods](#methods)
   - [Automation](#automation)
 
 # Introduction
@@ -13,12 +14,13 @@ Brian Sugg
 ## Purpose
 
 The overall theme of this exercise is determining the popularity of
-online news. The goal is to create models for predicting the number of
-times a news article from *mashable.com* will be shared in social
-networks. Two models will be created: a linear regression model and a
-non-linear model. The parameter functionality of markdown will be used
-to automatically generate an analysis report for each day of the week
-that an article might be published.
+online news. The goal is to create models for predicting the popularity
+of news articles from *mashable.com* using binary classification to
+categorize article shares in social networks. Two models will be
+created: a linear regression model and a non-linear ensemble model. The
+parameter functionality of markdown will be used to automatically
+generate an analysis report for each day of the week that an article
+might be published.
 
 ## Data Description
 
@@ -42,6 +44,26 @@ classification based on number of shares in social networks. The
 provided link above goes into more detail for all variables and their
 representation.
 
+## Methods
+
+The methods used in the creation of both models will follow a similar
+approach. The cleansed data set for each day of the week will be split
+into a training (70% of records) and a testing set (30% of records). The
+training set will undergo k-fold cross validation for the model fit,
+with a varying level of folds and resampling for each model type. The
+fitted model will be selected automatically by the `caret` package based
+on resulting accuracy, and then applied to the testing data set to
+determine actual accuracy and associated misclassification rate.
+
+The non-linear ensemble model for this exercise will be random forests,
+and the linear model will be a logistic regression model under the
+family of generalized linear regression. More detail around these two
+model types is discussed further in their relevant sections.
+
+The final *Conclusion* section will automatically select and display the
+accuracy and misclassification rate from the best model, determined by
+accuracy.
+
 # Automation
 
 ``` r
@@ -54,10 +76,6 @@ purrr::map(.x = days, .f = ~rmarkdown::render(input = "Template.Rmd", params = l
     output_file = paste0(.x, ".md")))
 ```
 
-    ## 
-    ## 
-    ## processing file: Template.Rmd
-
     ##   |                                                                              |                                                                      |   0%  |                                                                              |..                                                                    |   3%
     ##   ordinary text without R code
     ## 
@@ -165,22 +183,10 @@ purrr::map(.x = days, .f = ~rmarkdown::render(input = "Template.Rmd", params = l
     ## 
     ##   |                                                                              |......................................................................| 100%
     ##    inline R code fragments
-
-    ## output file: Template.knit.md
-
+    ## 
+    ## 
     ## "C:/Program Files/RStudio/bin/pandoc/pandoc" +RTS -K512m -RTS Template.utf8.md --to gfm --from markdown+autolink_bare_uris+tex_math_single_backslash --output Monday.md --standalone --table-of-contents --toc-depth 3 --template "C:\Users\suggb\Documents\R\win-library\4.0\rmarkdown\rmarkdown\templates\github_document\resources\default.md" 
-    ## "C:/Program Files/RStudio/bin/pandoc/pandoc" +RTS -K512m -RTS Monday.md --to html4 --from gfm --output Monday.html --standalone --self-contained --highlight-style pygments --template "C:\Users\suggb\Documents\R\win-library\4.0\rmarkdown\rmarkdown\templates\github_document\resources\preview.html" --variable "github-markdown-css:C:\Users\suggb\Documents\R\win-library\4.0\rmarkdown\rmarkdown\templates\github_document\resources\github.css" --email-obfuscation none --metadata pagetitle=PREVIEW
-
-    ## 
-    ## Preview created: C:\Users\suggb\AppData\Local\Temp\RtmpcbX0Hq\preview-74c42663d78.html
-
-    ## 
-    ## Output created: Monday.md
-
-    ## 
-    ## 
-    ## processing file: Template.Rmd
-
+    ## "C:/Program Files/RStudio/bin/pandoc/pandoc" +RTS -K512m -RTS Monday.md --to html4 --from gfm --output Monday.html --standalone --self-contained --highlight-style pygments --template "C:\Users\suggb\Documents\R\win-library\4.0\rmarkdown\rmarkdown\templates\github_document\resources\preview.html" --variable "github-markdown-css:C:\Users\suggb\Documents\R\win-library\4.0\rmarkdown\rmarkdown\templates\github_document\resources\github.css" --email-obfuscation none --metadata pagetitle=PREVIEW 
     ##   |                                                                              |                                                                      |   0%  |                                                                              |..                                                                    |   3%
     ##   ordinary text without R code
     ## 
@@ -288,22 +294,10 @@ purrr::map(.x = days, .f = ~rmarkdown::render(input = "Template.Rmd", params = l
     ## 
     ##   |                                                                              |......................................................................| 100%
     ##    inline R code fragments
-
-    ## output file: Template.knit.md
-
+    ## 
+    ## 
     ## "C:/Program Files/RStudio/bin/pandoc/pandoc" +RTS -K512m -RTS Template.utf8.md --to gfm --from markdown+autolink_bare_uris+tex_math_single_backslash --output Tuesday.md --standalone --table-of-contents --toc-depth 3 --template "C:\Users\suggb\Documents\R\win-library\4.0\rmarkdown\rmarkdown\templates\github_document\resources\default.md" 
-    ## "C:/Program Files/RStudio/bin/pandoc/pandoc" +RTS -K512m -RTS Tuesday.md --to html4 --from gfm --output Tuesday.html --standalone --self-contained --highlight-style pygments --template "C:\Users\suggb\Documents\R\win-library\4.0\rmarkdown\rmarkdown\templates\github_document\resources\preview.html" --variable "github-markdown-css:C:\Users\suggb\Documents\R\win-library\4.0\rmarkdown\rmarkdown\templates\github_document\resources\github.css" --email-obfuscation none --metadata pagetitle=PREVIEW
-
-    ## 
-    ## Preview created: C:\Users\suggb\AppData\Local\Temp\RtmpcbX0Hq\preview-74c616c2a70.html
-
-    ## 
-    ## Output created: Tuesday.md
-
-    ## 
-    ## 
-    ## processing file: Template.Rmd
-
+    ## "C:/Program Files/RStudio/bin/pandoc/pandoc" +RTS -K512m -RTS Tuesday.md --to html4 --from gfm --output Tuesday.html --standalone --self-contained --highlight-style pygments --template "C:\Users\suggb\Documents\R\win-library\4.0\rmarkdown\rmarkdown\templates\github_document\resources\preview.html" --variable "github-markdown-css:C:\Users\suggb\Documents\R\win-library\4.0\rmarkdown\rmarkdown\templates\github_document\resources\github.css" --email-obfuscation none --metadata pagetitle=PREVIEW 
     ##   |                                                                              |                                                                      |   0%  |                                                                              |..                                                                    |   3%
     ##   ordinary text without R code
     ## 
@@ -411,22 +405,10 @@ purrr::map(.x = days, .f = ~rmarkdown::render(input = "Template.Rmd", params = l
     ## 
     ##   |                                                                              |......................................................................| 100%
     ##    inline R code fragments
-
-    ## output file: Template.knit.md
-
+    ## 
+    ## 
     ## "C:/Program Files/RStudio/bin/pandoc/pandoc" +RTS -K512m -RTS Template.utf8.md --to gfm --from markdown+autolink_bare_uris+tex_math_single_backslash --output Wednesday.md --standalone --table-of-contents --toc-depth 3 --template "C:\Users\suggb\Documents\R\win-library\4.0\rmarkdown\rmarkdown\templates\github_document\resources\default.md" 
-    ## "C:/Program Files/RStudio/bin/pandoc/pandoc" +RTS -K512m -RTS Wednesday.md --to html4 --from gfm --output Wednesday.html --standalone --self-contained --highlight-style pygments --template "C:\Users\suggb\Documents\R\win-library\4.0\rmarkdown\rmarkdown\templates\github_document\resources\preview.html" --variable "github-markdown-css:C:\Users\suggb\Documents\R\win-library\4.0\rmarkdown\rmarkdown\templates\github_document\resources\github.css" --email-obfuscation none --metadata pagetitle=PREVIEW
-
-    ## 
-    ## Preview created: C:\Users\suggb\AppData\Local\Temp\RtmpcbX0Hq\preview-74ca60726b.html
-
-    ## 
-    ## Output created: Wednesday.md
-
-    ## 
-    ## 
-    ## processing file: Template.Rmd
-
+    ## "C:/Program Files/RStudio/bin/pandoc/pandoc" +RTS -K512m -RTS Wednesday.md --to html4 --from gfm --output Wednesday.html --standalone --self-contained --highlight-style pygments --template "C:\Users\suggb\Documents\R\win-library\4.0\rmarkdown\rmarkdown\templates\github_document\resources\preview.html" --variable "github-markdown-css:C:\Users\suggb\Documents\R\win-library\4.0\rmarkdown\rmarkdown\templates\github_document\resources\github.css" --email-obfuscation none --metadata pagetitle=PREVIEW 
     ##   |                                                                              |                                                                      |   0%  |                                                                              |..                                                                    |   3%
     ##   ordinary text without R code
     ## 
@@ -534,22 +516,10 @@ purrr::map(.x = days, .f = ~rmarkdown::render(input = "Template.Rmd", params = l
     ## 
     ##   |                                                                              |......................................................................| 100%
     ##    inline R code fragments
-
-    ## output file: Template.knit.md
-
+    ## 
+    ## 
     ## "C:/Program Files/RStudio/bin/pandoc/pandoc" +RTS -K512m -RTS Template.utf8.md --to gfm --from markdown+autolink_bare_uris+tex_math_single_backslash --output Thursday.md --standalone --table-of-contents --toc-depth 3 --template "C:\Users\suggb\Documents\R\win-library\4.0\rmarkdown\rmarkdown\templates\github_document\resources\default.md" 
-    ## "C:/Program Files/RStudio/bin/pandoc/pandoc" +RTS -K512m -RTS Thursday.md --to html4 --from gfm --output Thursday.html --standalone --self-contained --highlight-style pygments --template "C:\Users\suggb\Documents\R\win-library\4.0\rmarkdown\rmarkdown\templates\github_document\resources\preview.html" --variable "github-markdown-css:C:\Users\suggb\Documents\R\win-library\4.0\rmarkdown\rmarkdown\templates\github_document\resources\github.css" --email-obfuscation none --metadata pagetitle=PREVIEW
-
-    ## 
-    ## Preview created: C:\Users\suggb\AppData\Local\Temp\RtmpcbX0Hq\preview-74c11b84e15.html
-
-    ## 
-    ## Output created: Thursday.md
-
-    ## 
-    ## 
-    ## processing file: Template.Rmd
-
+    ## "C:/Program Files/RStudio/bin/pandoc/pandoc" +RTS -K512m -RTS Thursday.md --to html4 --from gfm --output Thursday.html --standalone --self-contained --highlight-style pygments --template "C:\Users\suggb\Documents\R\win-library\4.0\rmarkdown\rmarkdown\templates\github_document\resources\preview.html" --variable "github-markdown-css:C:\Users\suggb\Documents\R\win-library\4.0\rmarkdown\rmarkdown\templates\github_document\resources\github.css" --email-obfuscation none --metadata pagetitle=PREVIEW 
     ##   |                                                                              |                                                                      |   0%  |                                                                              |..                                                                    |   3%
     ##   ordinary text without R code
     ## 
@@ -657,22 +627,10 @@ purrr::map(.x = days, .f = ~rmarkdown::render(input = "Template.Rmd", params = l
     ## 
     ##   |                                                                              |......................................................................| 100%
     ##    inline R code fragments
-
-    ## output file: Template.knit.md
-
+    ## 
+    ## 
     ## "C:/Program Files/RStudio/bin/pandoc/pandoc" +RTS -K512m -RTS Template.utf8.md --to gfm --from markdown+autolink_bare_uris+tex_math_single_backslash --output Friday.md --standalone --table-of-contents --toc-depth 3 --template "C:\Users\suggb\Documents\R\win-library\4.0\rmarkdown\rmarkdown\templates\github_document\resources\default.md" 
-    ## "C:/Program Files/RStudio/bin/pandoc/pandoc" +RTS -K512m -RTS Friday.md --to html4 --from gfm --output Friday.html --standalone --self-contained --highlight-style pygments --template "C:\Users\suggb\Documents\R\win-library\4.0\rmarkdown\rmarkdown\templates\github_document\resources\preview.html" --variable "github-markdown-css:C:\Users\suggb\Documents\R\win-library\4.0\rmarkdown\rmarkdown\templates\github_document\resources\github.css" --email-obfuscation none --metadata pagetitle=PREVIEW
-
-    ## 
-    ## Preview created: C:\Users\suggb\AppData\Local\Temp\RtmpcbX0Hq\preview-74c73d058d1.html
-
-    ## 
-    ## Output created: Friday.md
-
-    ## 
-    ## 
-    ## processing file: Template.Rmd
-
+    ## "C:/Program Files/RStudio/bin/pandoc/pandoc" +RTS -K512m -RTS Friday.md --to html4 --from gfm --output Friday.html --standalone --self-contained --highlight-style pygments --template "C:\Users\suggb\Documents\R\win-library\4.0\rmarkdown\rmarkdown\templates\github_document\resources\preview.html" --variable "github-markdown-css:C:\Users\suggb\Documents\R\win-library\4.0\rmarkdown\rmarkdown\templates\github_document\resources\github.css" --email-obfuscation none --metadata pagetitle=PREVIEW 
     ##   |                                                                              |                                                                      |   0%  |                                                                              |..                                                                    |   3%
     ##   ordinary text without R code
     ## 
@@ -780,22 +738,10 @@ purrr::map(.x = days, .f = ~rmarkdown::render(input = "Template.Rmd", params = l
     ## 
     ##   |                                                                              |......................................................................| 100%
     ##    inline R code fragments
-
-    ## output file: Template.knit.md
-
+    ## 
+    ## 
     ## "C:/Program Files/RStudio/bin/pandoc/pandoc" +RTS -K512m -RTS Template.utf8.md --to gfm --from markdown+autolink_bare_uris+tex_math_single_backslash --output Saturday.md --standalone --table-of-contents --toc-depth 3 --template "C:\Users\suggb\Documents\R\win-library\4.0\rmarkdown\rmarkdown\templates\github_document\resources\default.md" 
-    ## "C:/Program Files/RStudio/bin/pandoc/pandoc" +RTS -K512m -RTS Saturday.md --to html4 --from gfm --output Saturday.html --standalone --self-contained --highlight-style pygments --template "C:\Users\suggb\Documents\R\win-library\4.0\rmarkdown\rmarkdown\templates\github_document\resources\preview.html" --variable "github-markdown-css:C:\Users\suggb\Documents\R\win-library\4.0\rmarkdown\rmarkdown\templates\github_document\resources\github.css" --email-obfuscation none --metadata pagetitle=PREVIEW
-
-    ## 
-    ## Preview created: C:\Users\suggb\AppData\Local\Temp\RtmpcbX0Hq\preview-74c7167734.html
-
-    ## 
-    ## Output created: Saturday.md
-
-    ## 
-    ## 
-    ## processing file: Template.Rmd
-
+    ## "C:/Program Files/RStudio/bin/pandoc/pandoc" +RTS -K512m -RTS Saturday.md --to html4 --from gfm --output Saturday.html --standalone --self-contained --highlight-style pygments --template "C:\Users\suggb\Documents\R\win-library\4.0\rmarkdown\rmarkdown\templates\github_document\resources\preview.html" --variable "github-markdown-css:C:\Users\suggb\Documents\R\win-library\4.0\rmarkdown\rmarkdown\templates\github_document\resources\github.css" --email-obfuscation none --metadata pagetitle=PREVIEW 
     ##   |                                                                              |                                                                      |   0%  |                                                                              |..                                                                    |   3%
     ##   ordinary text without R code
     ## 
@@ -903,17 +849,10 @@ purrr::map(.x = days, .f = ~rmarkdown::render(input = "Template.Rmd", params = l
     ## 
     ##   |                                                                              |......................................................................| 100%
     ##    inline R code fragments
-
-    ## output file: Template.knit.md
-
+    ## 
+    ## 
     ## "C:/Program Files/RStudio/bin/pandoc/pandoc" +RTS -K512m -RTS Template.utf8.md --to gfm --from markdown+autolink_bare_uris+tex_math_single_backslash --output Sunday.md --standalone --table-of-contents --toc-depth 3 --template "C:\Users\suggb\Documents\R\win-library\4.0\rmarkdown\rmarkdown\templates\github_document\resources\default.md" 
     ## "C:/Program Files/RStudio/bin/pandoc/pandoc" +RTS -K512m -RTS Sunday.md --to html4 --from gfm --output Sunday.html --standalone --self-contained --highlight-style pygments --template "C:\Users\suggb\Documents\R\win-library\4.0\rmarkdown\rmarkdown\templates\github_document\resources\preview.html" --variable "github-markdown-css:C:\Users\suggb\Documents\R\win-library\4.0\rmarkdown\rmarkdown\templates\github_document\resources\github.css" --email-obfuscation none --metadata pagetitle=PREVIEW
-
-    ## 
-    ## Preview created: C:\Users\suggb\AppData\Local\Temp\RtmpcbX0Hq\preview-74c3c206d88.html
-
-    ## 
-    ## Output created: Sunday.md
 
     ## [[1]]
     ## [1] "C:/Users/suggb/Documents/ST558/Projects/Project2/Monday.md"
@@ -937,10 +876,10 @@ purrr::map(.x = days, .f = ~rmarkdown::render(input = "Template.Rmd", params = l
     ## [1] "C:/Users/suggb/Documents/ST558/Projects/Project2/Sunday.md"
 
 A template file has been created that utilizes the above R markdown
-automation to generate a full analysis of methods used, metadata
-overview, data import and slicing, numeric summaries, model fit, model
-selection, and model testing for each day of the week. These individual
-analysis can be found at the below links:
+automation to generate a full analysis with a metadata overview, data
+import and slicing, numeric summaries, model fit, model selection, model
+testing, and final conclusion for best model used for each day of the
+week. These individual analysis can be found within the below links:
 
 The analysis for [Monday is available here](Monday.md).  
 The analysis for [Tuesday is available here](Tuesday.md).  

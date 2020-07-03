@@ -45,7 +45,7 @@ In total there are **58 possible predictive attributes** with the goal of predic
 
 ## Methods  
 
-The methods used in the creation of both models will follow a similar approach. The cleansed data set for each day of the week will be split into a training (70% of records) and a testing set (30% of records). The training set will undergo k-folding cross validation for the model fit, with a varying level of folds and resampling for each model type. The fitted model will be selected automatically by the `caret` package based on resulting accuracy, and then applied to the testing data set to determine actual accuracy and associated misclassification rate.  
+The methods used in the creation of both models will follow a similar approach. The cleansed data set for each day of the week will be split into a training (70% of records) and a testing set (30% of records). The training set will undergo k-fold cross validation for the model fit, with a varying level of folds and resampling for each model type. The fitted model will be selected automatically by the `caret` package based on resulting accuracy, and then applied to the testing data set to determine actual accuracy and associated misclassification rate.  
 
 The non-linear ensemble model for this exercise will be random forests, and the linear model will be a logistic regression model under the family of generalized linear regression. More detail around these two model types is discussed further in their relevant sections.
 
@@ -57,7 +57,7 @@ The final *Conclusion* section will automatically select and display the accurac
 
 As mentioned previously, the original data set contains 58 possible predictor variables and 1 response variable. We will add 1 additional response variable for "Popularity" during the import process below in case this is something we wish to also predict. *Popularity* will be defined as any article that is shared at least 1,400 times.
 
-The provided predictor variables have a wide range of characteristics they represent. A listing of some of the primary variables this analysis will focus on, including the thought process behind their selection:  
+The provided predictor variables have a wide range of characteristics they represent. A listing of some of the primary variables to consider in this analysis:  
 
 *  `n_tokens_title` - number of words in the title  
     + Are short titles more catchy to the reader?  
@@ -131,7 +131,7 @@ A contingecy table is provided for the categorical variable `channel` to compare
 knitr::kable(table(newsTrain$channel,newsTrain$sharesPopular),format="html",caption="Frequency of Article Channel by Sharing Popularity (0=NotPopular,1=Popular)")
 ```
 
-Numeric summaries of different article stats help reveal a few observations from the training data set regarding the length of article titles, the length of articles, the number of images within an article, and the number of videos within an article. The correlation between these variables and the response variable `shares` will be explored further with visuals in the following section.  
+Numeric summaries of different article stats help reveal a few observations from the training data set regarding the length of article titles, the length of articles, the number of images within an article, and the number of videos within an article.  
 
 ```{r summaryStats}
 knitr::kable(cbind("Title Word Count"=round(summary(newsTrain$n_tokens_title),1),"Article Word Count"=round(summary(newsTrain$n_tokens_content),1),"Number of Images"=round(summary(newsTrain$num_imgs),1),"Number of Videos"=round(summary(newsTrain$num_videos),1)),caption=paste("Summary of Article Characteristics"))
