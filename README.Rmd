@@ -52,10 +52,10 @@ The final *Conclusion* section will automatically select and display the accurac
 
 # Automation  
 
-```{r automation, message=FALSE}
+```{r automation, results='hide', message=FALSE, warning=FALSE}
 # Create a vector of the elements to iterate over
-days <- c("Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday")
-
+days <- c("Monday")
+# ,"Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"
 # Render to .md the template for each param
 purrr::map(.x = days,.f=~rmarkdown::render(input="Template.Rmd",params=list(day=.x),output_file=paste0(.x,".md")))
 ```
