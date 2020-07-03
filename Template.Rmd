@@ -27,7 +27,7 @@ knitr::opts_chunk$set(echo=TRUE,tidy.opts=list(width.cutoff=70),tidy=TRUE)
 
 ## Purpose  
 
-The overall theme of this exercise is determining the popularity of online news. The goal is to create models for predicting the number of times a news article from *mashable.com* will be shared in social networks. Two models will be created: a linear regression model and a non-linear model. The parameter functionality of markdown will be used to automatically generate an analysis report for each day of the week that an article might be published.  
+The overall theme of this exercise is determining the popularity of online news. The goal is to create models for predicting the popularity of news articles from *mashable.com* using binary classification to categorize article shares in social networks. Two models will be created: a linear regression model and a non-linear ensemble model. The parameter functionality of markdown will be used to automatically generate an analysis report for each day of the week that an article might be published.  
 
 ## Data Description  
 
@@ -43,9 +43,13 @@ This data set covers a two year period, listing all published articles from Mash
 
 In total there are **58 possible predictive attributes** with the goal of predicting the response variable of article popularity using a binary classification based on number of shares in social networks. The provided link above goes into more detail for all variables and their representation.  
 
-## *****Methods  
+## Methods  
 
-**To be filled in later** >> The methods you’ll use (roughly - more detail can be given later in the document).  
+The methods used in the creation of both models will follow a similar approach. The cleansed data set for each day of the week will be split into a training (70% of records) and a testing set (30% of records). The training set will undergo k-folding cross validation for the model fit, with a varying level of folds and resampling for each model type. The fitted model will be selected automatically by the `caret` package based on resulting accuracy, and then applied to the testing data set to determine actual accuracy and associated misclassification rate.  
+
+The non-linear ensemble model for this exercise will be random forests, and the linear model will be a logistic regression model under the family of generalized linear regression. More detail around these two model types is discussed further in their relevant sections.
+
+The final *Conclusion* section will automatically select and display the accuracy and misclassification rate from the best model, determined by accuracy.  
 
 # Data  
 
@@ -94,7 +98,6 @@ For verification, a preview of the `newsSlice` set is generated prior to slicing
 ```{r dataPreview}
 head(newsSlice)
 ```
-
 
 ## Slicing  
 
