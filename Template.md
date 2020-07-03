@@ -65,15 +65,15 @@ representation.
 The methods used in the creation of both models will follow a similar
 approach. The cleansed data set for each day of the week will be split
 into a training (70% of records) and a testing set (30% of records). The
-training set will undergo k-folding cross validation for the model fit,
+training set will undergo k-fold cross validation for the model fit,
 with a varying level of folds and resampling for each model type. The
 fitted model will be selected automatically by the `caret` package based
 on resulting accuracy, and then applied to the testing data set to
 determine actual accuracy and associated misclassification rate.
 
-The non-linear ensemble model for this exercise will be random forests,
-and the linear model will be a logistic regression model under the
-family of generalized linear regression. More detail around these two
+The non-linear ensemble model for this exercise will be Random Forests,
+and the linear model will be a Logistic Regression model under the
+family of Generalized Linear Regression. More detail around these two
 model types is discussed further in their relevant sections.
 
 The final *Conclusion* section will automatically select and display the
@@ -91,8 +91,8 @@ case this is something we wish to also predict. *Popularity* will be
 defined as any article that is shared at least 1,400 times.
 
 The provided predictor variables have a wide range of characteristics
-they represent. A listing of some of the primary variables this analysis
-will focus on, including the thought process behind their selection:
+they represent. A listing of some of the primary variables to consider
+in this analysis:
 
   - `n_tokens_title` - number of words in the title
       - Are short titles more catchy to the reader?  
@@ -443,9 +443,7 @@ World
 Numeric summaries of different article stats help reveal a few
 observations from the training data set regarding the length of article
 titles, the length of articles, the number of images within an article,
-and the number of videos within an article. The correlation between
-these variables and the response variable `shares` will be explored
-further with visuals in the following section.
+and the number of videos within an article.
 
 ``` r
 knitr::kable(cbind(`Title Word Count` = round(summary(newsTrain$n_tokens_title), 
@@ -493,6 +491,11 @@ boxChannel + geom_jitter(aes(x = channel, y = shares, color = channel)) +
 
 ![](Template_files/figure-gfm/boxPlot-1.png)<!-- -->
 
+A few scatter plots are created to visually explore any correlations
+between some predictor variables such as article word count, title word
+count, and number of images vs the response variables of article
+popularity and/or number of shares.
+
 ``` r
 # Scatter plot 1 creation
 plotWordCount <- ggplot(data = newsTrain, aes(x = n_tokens_content, y = shares))
@@ -517,32 +520,27 @@ plotImages + geom_point() + geom_smooth(method = NULL) + labs(x = "Number of Ima
 
 ``` r
 # Scatter plot 3 creation
-plotVideos <- ggplot(data = newsTrain, aes(x = n_tokens_content, y = shares))
-plotVideos + geom_point() + geom_smooth(method = NULL) + labs(x = "Number of Videos", 
-    y = "Shares", title = "Number of Videos vs Shares")
+plotPop <- ggplot(data = newsTrain, aes(x = n_tokens_title, y = sharesPopular))
+plotPop + geom_point() + geom_jitter() + labs(x = "Title Word Count", y = "Popularity", 
+    title = "Title Word Count vs Popularity (0=NotPopular,1=Popular)")
 ```
 
-    ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
-
 ![](Template_files/figure-gfm/scatterPlots-3.png)<!-- -->
+
+The previous scatter plot on the binary variable `sharesPopular` was
+interesting enough for a closer look, this time utilizing a 100% stacked
+bar chart to see if the popularity % is consistent across all values of
+title word count.
 
 ``` r
 # 100% Stack bar chart on popularity
 stackBar <- ggplot(data = newsTrain, aes(x = n_tokens_title))
 stackBar + geom_bar(aes(fill = sharesPopular), position = "fill") + labs(x = "Title Word Count", 
-    y = "Popularity %", title = "Popularity (0=NotPopular,1=Popular) vs Title Word Count") + 
-    scale_fill_discrete(name = "Popular Article")
+    y = "Popularity %", title = "Title Word Count vs Popularity (0=NotPopular,1=Popular)") + 
+    scale_fill_discrete(name = "Popularity")
 ```
 
 ![](Template_files/figure-gfm/bar100-1.png)<!-- -->
-
-A few plots help illustrate the above numeric summaries, and offer
-additional views.
-
-The general things that the plots describe should be explained but,
-since we are going to automate things, there is no need to try and
-explain particular trends in the plots you see (unless you want to try
-and automate that too\!).
 
 # Modeling
 
@@ -556,9 +554,9 @@ the predicted value is 0 then we anticipate less than 1,400 shares.
 
 Two types of models will be fitted, tested, and analyzed for accuracy
 and misclassification of this prediction. As mentioned previously, the
-first will be an Ensemble Model via Random Forests and the second will
-be a Linear Regression model via a Generalized Linear Model for Logistic
-Regression. Both will test all possible predictor variables.
+first will be an Ensemble Model with Random Forests and the second will
+be a Generalized Linear Model with Logistic Regression. Both will test
+all possible predictor variables.
 
 The fit process will utilize the `caret` package and available relevant
 options for each model type, with more detail to follow. For each fit,
@@ -596,7 +594,7 @@ package.
 trctrl <- trainControl(method = "repeatedcv", number = 2, repeats = 3)
 # 2. Set a seed for reproducible results
 set.seed(3333)
-# 3. Use train() function to determine a random forest model of best
+# 3. Use train() function to determine a random forests model of best
 # fit
 randFor_fit <- train(sharesPopular ~ ., data = newsTrain[, c(1:29, 38:58, 
     60)], method = "rf", trControl = trctrl, preProcess = c("center", "scale"), 
@@ -691,7 +689,7 @@ conMatrixRF
 misclassRateRF <- 1 - sum(diag(conMatrixRF$table))/sum(conMatrixRF$table)
 ```
 
-Performance metrics for the **Random Forest** model predictions on
+Performance metrics for the **Random Forests** model predictions on
 `newsTest` with **`MTRY=`44**:  
 **Accuracy:** 0.6402  
 **Misclassification Rate:** 0.3598
@@ -701,8 +699,8 @@ Regression Model to determine best performance between the two.
 
 ## Linear Regression Model
 
-The approach for the Generalized Linear Model of Logistic Regression was
-chosen given the non-continuous, binary nature of our outcome of
+The approach for the Generalized Linear Model with Logistic Regression
+was chosen given the non-continuous, binary nature of our outcome of
 predicting either a 0 or 1 for popularity. The same set of possible
 predictors will be provided.
 
@@ -809,8 +807,8 @@ conMatrixGLM
 misclassRateGLM <- 1 - sum(diag(conMatrixGLM$table))/sum(conMatrixGLM$table)
 ```
 
-Performance metrics for the **Generalized Linear Regression** model
-predictions on `newsTest`:  
+Performance metrics for the **Generalized Linear Regression with
+Logistic Regression** model predictions on `newsTest`:  
 **Accuracy:** 0.6427  
 **Misclassification Rate:** 0.3573
 
@@ -822,11 +820,12 @@ determine the best performance between the two models.
 To briefly recap the performance metrics of accuracy and
 misclassifications rates for both models:
 
-**Random Forest** model predictions on `newsTest` with **`MTRY=`44**:  
+**Random Forests** model predictions on `newsTest` with **`MTRY=`44**:  
 **Accuracy:** 0.6402  
 **Misclassification Rate:** 0.3598
 
-**Generalized Linear Regression** model predictions on `newsTest`:  
+**Generalized Linear Regression with Logistic Regression** model
+predictions on `newsTest`:  
 **Accuracy:** 0.6427  
 **Misclassification Rate:** 0.3573
 
