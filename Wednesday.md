@@ -19,7 +19,8 @@ Brian Sugg
           - [Fit](#fit)
           - [Selection](#selection)
           - [Test Set Predictions](#test-set-predictions)
-      - [Linear Regression Model](#linear-regression-model)
+      - [Generalized Linear Regression
+        Model](#generalized-linear-regression-model)
           - [Fit](#fit-1)
           - [Selection](#selection-1)
           - [Test Set Predictions](#test-set-predictions-1)
@@ -32,11 +33,12 @@ Brian Sugg
 The overall theme of this exercise is determining the popularity of
 online news. The goal is to create models for predicting the popularity
 of news articles from *mashable.com* using binary classification to
-categorize article shares in social networks. Two models will be
-created: a linear regression model and a non-linear ensemble model. The
-parameter functionality of markdown will be used to automatically
-generate an analysis report for each day of the week that an article
-might be published.
+categorize article shares in social networks as being either *Popular*
+or *Not-Popular*. Two models will be created: a generalized linear
+regression model and a non-linear ensemble model. The parameter
+functionality of markdown will be used to automatically generate an
+analysis report for each day of the week that an article might be
+published.
 
 ## Data Description
 
@@ -71,10 +73,10 @@ fitted model will be selected automatically by the `caret` package based
 on resulting accuracy, and then applied to the testing data set to
 determine actual accuracy and associated misclassification rate.
 
-The non-linear ensemble model for this exercise will be random forests,
-and the linear model will be a logistic regression model under the
-family of generalized linear regression. More detail around these two
-model types is discussed further in their relevant sections.
+The non-linear ensemble model for this exercise will be Random Forests,
+and the generalized linear regression model will be a Logistic
+Regression. More detail around these two model types is discussed
+further in their relevant sections.
 
 The final *Conclusion* section will automatically select and display the
 accuracy and misclassification rate from the best model, determined by
@@ -86,9 +88,10 @@ accuracy.
 
 As mentioned previously, the original data set contains 58 possible
 predictor variables and 1 response variable. We will add 1 additional
-response variable for “Popularity” during the import process below in
-case this is something we wish to also predict. *Popularity* will be
-defined as any article that is shared at least 1,400 times.
+response variable for “Popularity” during the import process that will
+be a binary value of 0 (Non-Popular) or 1 (Popular). *Popular* will be
+defined as any article that is shared at least 1,400 times on social
+networks.
 
 The provided predictor variables have a wide range of characteristics
 they represent. A listing of some of the primary variables to consider
@@ -122,16 +125,16 @@ The raw data set from UCI is provided and read in as a `.csv` file,
 creating the `news` data set. Extreme values for `shares` \> 25,000 are
 filtered out (578 removed out of 39,644 records). The parameter
 functionality of markdown is then incorporated from the YAML header,
-initially using the parameter value `day` to filter the `news` data set
-on a certain day of week for analysis.
+using the parameter value `day` to filter the `news` data set on a
+certain day of week for analysis.
 
 Additional modifications are made, including the creation of a binary
 `popularity` variable as mentioned earlier, defining popularity as any
 article shared more than 1,400 times. To help visualize the amount of
-articles per `channel`, this variable is created as well using the
-`data_channel_is*` variables. Finally, any non-predictive variables are
-removed to create a `newsSlice` data set that will be sliced into train
-and test sets later on.
+articles per channel/genre, a categorical `channel` variable is created
+as well using the `data_channel_is*` variables. Finally, any
+non-predictive variables are removed to create a `newsSlice` data set
+that will be sliced into train and test sets later on.
 
 ``` r
 # Read in the data, filter out extreme values
@@ -491,6 +494,11 @@ boxChannel + geom_jitter(aes(x = channel, y = shares, color = channel)) +
 
 ![](Wednesday_files/figure-gfm/boxPlot-1.png)<!-- -->
 
+A few scatter plots are created to visually explore any correlations
+between some predictor variables such as article word count, title word
+count, and number of images vs the response variables of article
+popularity and/or number of shares.
+
 ``` r
 # Scatter plot 1 creation
 plotWordCount <- ggplot(data = newsTrain, aes(x = n_tokens_content, y = shares))
@@ -515,32 +523,27 @@ plotImages + geom_point() + geom_smooth(method = NULL) + labs(x = "Number of Ima
 
 ``` r
 # Scatter plot 3 creation
-plotVideos <- ggplot(data = newsTrain, aes(x = n_tokens_content, y = shares))
-plotVideos + geom_point() + geom_smooth(method = NULL) + labs(x = "Number of Videos", 
-    y = "Shares", title = "Number of Videos vs Shares")
+plotPop <- ggplot(data = newsTrain, aes(x = n_tokens_title, y = sharesPopular))
+plotPop + geom_point() + geom_jitter() + labs(x = "Title Word Count", y = "Popularity", 
+    title = "Title Word Count vs Popularity (0=NotPopular,1=Popular)")
 ```
 
-    ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
-
 ![](Wednesday_files/figure-gfm/scatterPlots-3.png)<!-- -->
+
+The previous scatter plot on the binary variable `sharesPopular` was
+interesting enough for a closer look, this time utilizing a 100% stacked
+bar chart to see if the popularity % is consistent across all values of
+title word count.
 
 ``` r
 # 100% Stack bar chart on popularity
 stackBar <- ggplot(data = newsTrain, aes(x = n_tokens_title))
 stackBar + geom_bar(aes(fill = sharesPopular), position = "fill") + labs(x = "Title Word Count", 
-    y = "Popularity %", title = "Popularity (0=NotPopular,1=Popular) vs Title Word Count") + 
-    scale_fill_discrete(name = "Popular Article")
+    y = "Popularity %", title = "Title Word Count vs Popularity (0=NotPopular,1=Popular)") + 
+    scale_fill_discrete(name = "Popularity")
 ```
 
 ![](Wednesday_files/figure-gfm/bar100-1.png)<!-- -->
-
-A few plots help illustrate the above numeric summaries, and offer
-additional views.
-
-The general things that the plots describe should be explained but,
-since we are going to automate things, there is no need to try and
-explain particular trends in the plots you see (unless you want to try
-and automate that too\!).
 
 # Modeling
 
@@ -554,9 +557,9 @@ the predicted value is 0 then we anticipate less than 1,400 shares.
 
 Two types of models will be fitted, tested, and analyzed for accuracy
 and misclassification of this prediction. As mentioned previously, the
-first will be an Ensemble Model via Random Forests and the second will
-be a Linear Regression model via a Generalized Linear Model for Logistic
-Regression. Both will test all possible predictor variables.
+first will be an Ensemble Model with Random Forests and the second will
+be a Generalized Linear Model with Logistic Regression. Both will test
+all possible predictor variables.
 
 The fit process will utilize the `caret` package and available relevant
 options for each model type, with more detail to follow. For each fit,
@@ -565,7 +568,7 @@ k-fold cross validation, centering, and scaling.
 
 ## Ensemble Model
 
-The approach with Random Forests includes building decision tress on
+The approach with **Random Forests** includes building decision tress on
 bootstrapped training samples, then relying on a random sample of *m
 predictors* to be used as split candidates from the full set of provided
 predictors. This random sample of a small subset of predictors helps
@@ -578,7 +581,7 @@ this method has been chosen in this exercise.
 
 The fit for the Random Forests model is done here using k-fold cross
 validation on the `newsTrain` data set. Since fitting for this type of
-model is computationally expensive, only 5 folds have been chosen for
+model is computationally expensive, only 4 folds have been chosen for
 cross validation, repeated 3 times. A seed has also been set to ensure
 reproducible results.
 
@@ -591,10 +594,10 @@ package.
 ``` r
 # 1. Use trainControl() function to control computations and set number
 # of desired folds for cross validation
-trctrl <- trainControl(method = "repeatedcv", number = 2, repeats = 3)
+trctrl <- trainControl(method = "repeatedcv", number = 4, repeats = 3)
 # 2. Set a seed for reproducible results
 set.seed(3333)
-# 3. Use train() function to determine a random forest model of best
+# 3. Use train() function to determine a random forests model of best
 # fit
 randFor_fit <- train(sharesPopular ~ ., data = newsTrain[, c(1:29, 38:58, 
     60)], method = "rf", trControl = trctrl, preProcess = c("center", "scale"), 
@@ -615,21 +618,21 @@ randFor_fit
     ##    2 classes: '0', '1' 
     ## 
     ## Pre-processing: centered (50), scaled (50) 
-    ## Resampling: Cross-Validated (2 fold, repeated 3 times) 
-    ## Summary of sample sizes: 2565, 2566, 2566, 2565, 2565, 2566, ... 
+    ## Resampling: Cross-Validated (4 fold, repeated 3 times) 
+    ## Summary of sample sizes: 3848, 3848, 3849, 3848, 3849, 3848, ... 
     ## Resampling results across tuning parameters:
     ## 
     ##   mtry  Accuracy   Kappa    
-    ##    2    0.6514650  0.3015838
-    ##    7    0.6486069  0.2963206
-    ##   12    0.6449037  0.2888913
-    ##   18    0.6441237  0.2872236
-    ##   23    0.6440597  0.2872603
-    ##   28    0.6453587  0.2897832
-    ##   34    0.6430850  0.2852088
-    ##   39    0.6411357  0.2814005
-    ##   44    0.6428254  0.2848791
-    ##   50    0.6402267  0.2796185
+    ##    2    0.6557521  0.3106382
+    ##    7    0.6505556  0.3001673
+    ##   12    0.6530898  0.3052732
+    ##   18    0.6499709  0.2989479
+    ##   23    0.6502956  0.2997184
+    ##   28    0.6503606  0.2996927
+    ##   34    0.6501652  0.2992584
+    ##   39    0.6473078  0.2936512
+    ##   44    0.6491256  0.2973127
+    ##   50    0.6478923  0.2946922
     ## 
     ## Accuracy was used to select the optimal model using the largest value.
     ## The final value used for the model was mtry = 2.
@@ -660,26 +663,26 @@ conMatrixRF
     ## 
     ##           Reference
     ## Prediction   0   1
-    ##          0 758 396
-    ##          1 420 625
+    ##          0 752 400
+    ##          1 426 621
     ##                                           
-    ##                Accuracy : 0.6289          
-    ##                  95% CI : (0.6083, 0.6492)
+    ##                Accuracy : 0.6244          
+    ##                  95% CI : (0.6038, 0.6447)
     ##     No Information Rate : 0.5357          
     ##     P-Value [Acc > NIR] : <2e-16          
     ##                                           
-    ##                   Kappa : 0.2552          
+    ##                   Kappa : 0.2462          
     ##                                           
-    ##  Mcnemar's Test P-Value : 0.4207          
+    ##  Mcnemar's Test P-Value : 0.3844          
     ##                                           
-    ##             Sensitivity : 0.6435          
-    ##             Specificity : 0.6121          
-    ##          Pos Pred Value : 0.6568          
-    ##          Neg Pred Value : 0.5981          
+    ##             Sensitivity : 0.6384          
+    ##             Specificity : 0.6082          
+    ##          Pos Pred Value : 0.6528          
+    ##          Neg Pred Value : 0.5931          
     ##              Prevalence : 0.5357          
-    ##          Detection Rate : 0.3447          
-    ##    Detection Prevalence : 0.5248          
-    ##       Balanced Accuracy : 0.6278          
+    ##          Detection Rate : 0.3420          
+    ##    Detection Prevalence : 0.5239          
+    ##       Balanced Accuracy : 0.6233          
     ##                                           
     ##        'Positive' Class : 0               
     ## 
@@ -689,30 +692,30 @@ conMatrixRF
 misclassRateRF <- 1 - sum(diag(conMatrixRF$table))/sum(conMatrixRF$table)
 ```
 
-Performance metrics for the **Random Forest** model predictions on
+Performance metrics for the **Random Forests** model predictions on
 `newsTest` with **`MTRY=`2**:  
-**Accuracy:** 0.6289  
-**Misclassification Rate:** 0.3711
+**Accuracy:** 0.6244  
+**Misclassification Rate:** 0.3756
 
-These values will be later compared against the upcoming Linear
-Regression Model to determine best performance between the two.
+These values will be evaluated in the *Conclusion* section to determine
+the best performance between the two models.
 
-## Linear Regression Model
+## Generalized Linear Regression Model
 
-The approach for the Generalized Linear Model of Logistic Regression was
-chosen given the non-continuous, binary nature of our outcome of
-predicting either a 0 or 1 for popularity. The same set of possible
-predictors will be provided.
+The approach for the **Generalized Linear Model with Logistic
+Regression** was chosen given the non-continuous, binary nature of our
+response variable `sharesPopular` of predicting a value of 0 or 1 for
+popularity. The same set of possible predictors will be provided.
 
 ### Fit
 
-The fit for the logistic regression model is done here again using
-k-fold cross validation on the `newsTrain` data set. Since less
-computation is required, we have increased our training to 10 folds,
-with resampling repeated 5 times. The `family="binomial"` argument has
-been provided to the `glm` method to explicitly state the desired fit of
-logistic regression, although the `caret` package should recognize this
-as the optimal approach even without the argument.
+The fit for this model is done using k-fold cross validation on the
+`newsTrain` data set. Since less computation is required, we have
+increased our training to 10 folds, with resampling repeated 5 times.
+The `family="binomial"` argument has been provided to the `glm` method
+to explicitly state the desired fit of logistic regression, although the
+`caret` package should recognize this as the optimal approach even
+without the argument.
 
 As before, all `weekday_is_*` variables have been excluded from the
 training since the data set is filtered on just one published day of the
@@ -755,9 +758,9 @@ logReg_fit
 
 Given our training parameters discussed above, utilizing k-fold cross
 validaiton, our model selection is based on the provided training
-calculations output from the `caret` package. This model fit will be
-tested on `newsTest` data set and then measured for actual accuracy and
-associated misclassification rate.
+calculations from the `caret` package to optimize accuracy. This model
+fit will be tested on `newsTest` data set and then measured for actual
+accuracy and associated misclassification rate.
 
 ### Test Set Predictions
 
@@ -807,8 +810,8 @@ conMatrixGLM
 misclassRateGLM <- 1 - sum(diag(conMatrixGLM$table))/sum(conMatrixGLM$table)
 ```
 
-Performance metrics for the **Generalized Linear Regression** model
-predictions on `newsTest`:  
+Performance metrics for the **Generalized Linear Regression with
+Logistic Regression** model predictions on `newsTest`:  
 **Accuracy:** 0.6171  
 **Misclassification Rate:** 0.3829
 
@@ -820,15 +823,16 @@ determine the best performance between the two models.
 To briefly recap the performance metrics of accuracy and
 misclassifications rates for both models:
 
-**Random Forest** model predictions on `newsTest` with **`MTRY=`2**:  
-**Accuracy:** 0.6289  
-**Misclassification Rate:** 0.3711
+**Random Forests** model predictions on `newsTest` with **`MTRY=`2**:  
+**Accuracy:** 0.6244  
+**Misclassification Rate:** 0.3756
 
-**Generalized Linear Regression** model predictions on `newsTest`:  
+**Generalized Linear Regression with Logistic Regression** model
+predictions on `newsTest`:  
 **Accuracy:** 0.6171  
 **Misclassification Rate:** 0.3829
 
 This shows the best method for predicting the popularity of articles
-published on a **Wednesday** is done using **the Ensemble Model with
-Random Forests**. This is based on having a higher **accuracy value of
-0.6289** with an associated **misclassification rate of 0.3711**.
+published on a **Wednesday** is done using **Ensemble Model with Random
+Forests**. This is based on having a higher **accuracy value of 0.6244**
+with an associated **misclassification rate of 0.3756**.

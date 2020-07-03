@@ -16,11 +16,12 @@ Brian Sugg
 The overall theme of this exercise is determining the popularity of
 online news. The goal is to create models for predicting the popularity
 of news articles from *mashable.com* using binary classification to
-categorize article shares in social networks. Two models will be
-created: a linear regression model and a non-linear ensemble model. The
-parameter functionality of markdown will be used to automatically
-generate an analysis report for each day of the week that an article
-might be published.
+categorize article shares in social networks as being either *Popular*
+or *Not-Popular*. Two models will be created: a genarlized linear
+regression model and a non-linear ensemble model. The parameter
+functionality of markdown will be used to automatically generate an
+analysis report for each day of the week that an article might be
+published.
 
 ## Data Description
 
@@ -56,21 +57,22 @@ on resulting accuracy, and then applied to the testing data set to
 determine actual accuracy and associated misclassification rate.
 
 The non-linear ensemble model for this exercise will be Random Forests,
-and the linear model will be a Logistic Regression model under the
-family of Generalized Linear Regression. More detail around these two
-model types is discussed further in their relevant sections.
+and the generalized linear regression model will be a Logistic
+Regression. More detail around these two model types is discussed
+further in their relevant sections.
 
-The final *Conclusion* section will automatically select and display the
-accuracy and misclassification rate from the best model, determined by
-accuracy.
+The *Conclusion* section within the analysis for each day will
+automatically select and display the accuracy and misclassification rate
+from the best model, determined by accuracy.
 
 # Automation
 
 ``` r
 # Create a vector of the elements to iterate over
-days <- c("Monday")
-# ,'Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday' Render
-# to .md the template for each param
+days <- c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", 
+    "Sunday")
+
+# Render to .md the template for each param
 purrr::map(.x = days, .f = ~rmarkdown::render(input = "Template.Rmd", params = list(day = .x), 
     output_file = paste0(.x, ".md")))
 ```
