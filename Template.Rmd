@@ -290,7 +290,22 @@ Once you’ve completed the above for Monday, adapt the code so that you can use
 
 The analysis for [Monday is available here](MondayAnalysis.md)
 
-# *************************Conclusion
+# Conclusion
 
-No description given. Explain final model selection and evaluation of accuracy and misclassification rate metrics.  
+To briefly recap the performance metrics of accuracy and misclassifications rates for both models:
 
+Performance metrics for the **Random Forest** model predictions on `newsTest` with **`MTRY=``r randFor_fit$bestTune[[1]][[1]]`**:  
+**Accuracy:** `r round(conMatrixRF$overall[1],4)`  
+**Misclassification Rate:** `r round(misclassRateRF,4)`  
+
+Performance metrics for the **Generalized Linear Regression** model predictions on `newsTest`:  
+**Accuracy:** `r round(conMatrixGLM$overall[1],4)`  
+**Misclassification Rate:** `r round(misclassRateGLM,4)`  
+
+```{r bestModelSelection, include=FALSE}
+bestModel <- ifelse(conMatrixGLM$overall[1]>conMatrixRF$overall[1],"Generalized Linear Regression of Logistic Regression","Random Forests")
+bestModelAcc <- ifelse(conMatrixGLM$overall[1]>conMatrixRF$overall[1],round(conMatrixGLM$overall[1],4),round(conMatrixRF$overall[1],4))
+bestModelMR <- ifelse(conMatrixGLM$overall[1]>conMatrixRF$overall[1],round(misclassRateGLM,4),round(misclassRateRF,4))
+```
+
+This shows the best model for predicting the popularity of articles published on a `r params$day` is the `r bestModel`. This is based on having a higher accuracy value of `r bestModelAcc` with an associated misclassification rate of `r bestModelMR`.
